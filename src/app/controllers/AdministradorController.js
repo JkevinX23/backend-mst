@@ -1,6 +1,7 @@
 import * as Yup from 'yup'
 import Administrador from '../models/Administrador'
-// import Emails from '../models/Emails'
+import Autorizacao from '../models/Autorizacao'
+import TipoUsuarios from '../models/TipoUsuarios'
 
 class AdminController {
   async store(req, res) {
@@ -15,10 +16,10 @@ class AdminController {
     }
     const { email, nome, password } = req.body
 
-    // const exists = await Emails.findOne({ where: { email } })
-    // if (exists) {
-    //   return res.status(400).json({ error: 'Admin already exists.' })
-    // }
+    const exists = await Autorizacao.findOne({ where: { email } })
+    if (exists) {
+      return res.status(400).json({ error: 'Email already exists.' })
+    }
 
     let transaction
     try {
@@ -31,14 +32,24 @@ class AdminController {
 
       const admin = await Administrador.create(client, { transaction })
 
-      // await Emails.create(
-      //   {
-      //     email,
-      //     type: 1,
-      //     client_id: admin.id,
-      //   },
-      //   { transaction },
-      // )
+      let tipo = await TipoUsuarios.findOne({
+        where: { tipo: 'administrador' },
+      })
+
+      if (!tipo) {
+        tipo = await TipoUsuarios.create(
+          { tipo: 'administrador' },
+          { transaction },
+        )
+      }
+      await Autorizacao.create(
+        {
+          email,
+          tipo_id: tipo.id,
+          usuario_id: admin.id,
+        },
+        { transaction },
+      )
       await transaction.commit()
       return res.json(admin)
     } catch (err) {

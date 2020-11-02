@@ -1,8 +1,10 @@
 import Sequelize from 'sequelize'
 import Administrador from '../app/models/Administrador'
+import Autorizacao from '../app/models/Autorizacao'
+import TipoUsuarios from '../app/models/TipoUsuarios'
 import databaseConfig from '../config/database'
 
-const models = [Administrador]
+const models = [Administrador, TipoUsuarios, Autorizacao]
 
 class Database {
   constructor() {
