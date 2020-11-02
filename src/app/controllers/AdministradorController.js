@@ -51,7 +51,14 @@ class AdminController {
         { transaction },
       )
       await transaction.commit()
-      return res.json(admin)
+
+      return res.json({
+        admin: {
+          nome,
+          email,
+          id,
+        },
+      })
     } catch (err) {
       console.log(err)
       await transaction.rollback()
