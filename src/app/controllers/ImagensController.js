@@ -7,16 +7,9 @@ class ImagensController {
       fileCompress
         .compressImage(req.file, 300)
         .then(async newPath => {
-          const { option } = req
-          if (option !== 'administrador') {
-            return res.status(403).json({ error: 'Permissão negada!' })
-          }
-
           const { originalname: name } = req.file
           const { filename } = newPath
-
           const file = await Imagens.create({ name, path: filename })
-
           return res.json(file)
         })
         .catch(err => console.log(err))
