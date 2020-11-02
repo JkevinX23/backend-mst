@@ -56,7 +56,7 @@ class AdminController {
         admin: {
           nome,
           email,
-          id,
+          id: admin.id,
         },
       })
     } catch (err) {
