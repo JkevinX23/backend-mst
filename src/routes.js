@@ -11,6 +11,7 @@ import SessaoController from './app/controllers/SessaoController'
 import ClienteController from './app/controllers/ClienteController'
 import ImagensController from './app/controllers/ImagensController'
 import ProdutosController from './app/controllers/ProdutosController'
+import CategoriaController from './app/controllers/CategoriaController'
 
 const routes = new Router()
 const upload = multer(multerConfig)
@@ -20,7 +21,7 @@ routes.post('/tipo-usuario', TipoUsuariosController.store)
 routes.post('/sessao', SessaoController.store)
 routes.post('/cliente', ClienteController.store)
 routes.post('/produto', ProdutosController.store)
-
+routes.post('/categoria', CategoriaController.store)
 routes.use(authMiddleware)
 routes.post('/imagens', upload.single('file'), ImagensController.store)
 

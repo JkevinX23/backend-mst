@@ -1,4 +1,5 @@
 import * as Yup from 'yup'
+import CategoriaProduto from '../models/CategoriaProduto'
 import Produtos from '../models/Produtos'
 
 class ProdutosController {
@@ -7,25 +8,38 @@ class ProdutosController {
       nome: Yup.string().required(),
       descricao: Yup.string().required(),
       imagem_id: Yup.number().required(),
+      categorias: Yup.array().required(),
     })
 
     if (!(await schema.isValid(req.body))) {
       return res.status(400).json({ error: 'Validation fails' })
     }
 
-    const { nome, descricao, imagem_id } = req.body
+    const { nome, descricao, imagem_id, categorias } = req.body
 
     let transaction
     try {
       transaction = await Produtos.sequelize.transaction()
-      const produto = {
+      const prod = {
         nome,
         descricao,
         imagem_id,
       }
-      const end = await Produtos.create(produto, { transaction })
+      const produto = await Produtos.create(prod, { transaction })
+
+      const mapProdutos = categorias.map(element => {
+        return {
+          produto_id: produto.id,
+          categoria_id: element,
+        }
+      })
+
+      await CategoriaProduto.bulkCreate(mapProdutos, {
+        transaction,
+      })
+
       await transaction.commit()
-      return res.json(end)
+      return res.json(produto)
     } catch (err) {
       console.log(err)
       if (transaction) await transaction.rollback()

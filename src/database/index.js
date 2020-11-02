@@ -6,6 +6,8 @@ import Enderecos from '../app/models/Enderecos'
 import Imagens from '../app/models/Imagens'
 import TipoUsuarios from '../app/models/TipoUsuarios'
 import Produtos from '../app/models/Produtos'
+import Categoria from '../app/models/Categoria'
+import CategoriaProduto from '../app/models/CategoriaProduto'
 import databaseConfig from '../config/database'
 
 const models = [
@@ -16,6 +18,8 @@ const models = [
   Cliente,
   Imagens,
   Produtos,
+  Categoria,
+  CategoriaProduto,
 ]
 
 class Database {
