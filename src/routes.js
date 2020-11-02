@@ -9,6 +9,7 @@ import AdministradorController from './app/controllers/AdministradorController'
 import TipoUsuariosController from './app/controllers/TipoUsuarioController'
 import SessaoController from './app/controllers/SessaoController'
 import ClienteController from './app/controllers/ClienteController'
+import ImagensController from './app/controllers/ImagensController'
 
 const routes = new Router()
 const upload = multer(multerConfig)
@@ -19,5 +20,6 @@ routes.post('/sessao', SessaoController.store)
 routes.post('/cliente', ClienteController.store)
 
 routes.use(authMiddleware)
+routes.post('/imagens', upload.single('file'), ImagensController.store)
 
 export default routes

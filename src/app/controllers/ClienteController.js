@@ -25,6 +25,7 @@ class ClienteController {
     if (!(await schema.isValid(req.body))) {
       return res.status(400).json({ error: 'Validation fails' })
     }
+
     const { email, nome, password, cpf, telefone } = req.body
     const {
       cep,
