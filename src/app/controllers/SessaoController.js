@@ -5,6 +5,7 @@ import authConfig from '../../config/authConfig'
 import Administrador from '../models/Administrador'
 import Autorizacao from '../models/Autorizacao'
 import TipoUsuarios from '../models/TipoUsuarios'
+import Cliente from '../models/Cliente'
 
 class SessaoController {
   async store(req, res) {
@@ -47,9 +48,30 @@ class SessaoController {
       })
     }
 
+    async function ClienteLogin() {
+      const cliente = await Cliente.findByPk(usuario_id)
+      if (!cliente) return res.status(401).json({ error: 'User not found ' })
+      if (!(await cliente.checkPassword(password)))
+        return res.status(401).json({ error: 'Password does not match ' })
+      const { id, nome } = cliente
+      return res.json({
+        option: Tipo.tipo,
+        client: {
+          id,
+          nome,
+          email,
+        },
+        token: jwt.sign({ id, option: Tipo.tipo }, authConfig.secret, {
+          expiresIn: authConfig.expiresIn,
+        }),
+      })
+    }
+
     switch (Tipo.tipo) {
       case 'administrador':
         return AdministradorLogin()
+      case 'cliente':
+        return ClienteLogin()
       default:
         return res.status(404).json({ error: 'Falha ao efetuar o login' })
     }
