@@ -6,7 +6,7 @@ class ProdutosController {
     const schema = Yup.object().shape({
       nome: Yup.string().required(),
       descricao: Yup.string().required(),
-      foto_id: Yup.number().required(),
+      imagem_id: Yup.number().required(),
     })
 
     if (!(await schema.isValid(req.body))) {

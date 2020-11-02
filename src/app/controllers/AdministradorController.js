@@ -51,7 +51,6 @@ class AdminController {
         { transaction },
       )
       await transaction.commit()
-
       return res.json({
         admin: {
           nome,
