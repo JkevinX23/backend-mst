@@ -18,6 +18,7 @@ class Autorizacoes extends Model {
   static associate(models) {
     this.belongsTo(models.TipoUsuarios, {
       foreignKey: 'tipo_id',
+      as: 'Tipo',
     })
   }
 }

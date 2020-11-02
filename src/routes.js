@@ -7,12 +7,14 @@ import multerConfig from './config/multerConfig'
 
 import AdministradorController from './app/controllers/AdministradorController'
 import TipoUsuariosController from './app/controllers/TipoUsuarioController'
+import SessaoController from './app/controllers/SessaoController'
 
 const routes = new Router()
 const upload = multer(multerConfig)
 
 routes.post('/administrador', AdministradorController.store)
 routes.post('/tipo-usuario', TipoUsuariosController.store)
+routes.post('/sessao', SessaoController.store)
 
 routes.use(authMiddleware)
 
