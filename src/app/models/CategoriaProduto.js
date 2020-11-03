@@ -18,11 +18,11 @@ class CategoriaProduto extends Model {
   static associate(models) {
     this.belongsTo(models.Categoria, {
       foreignKey: 'categoria_id',
-      as: 'categorias',
+      as: 'categoria',
     })
     this.belongsTo(models.Produtos, {
       foreignKey: 'produto_id',
-      as: 'produtos',
+      as: 'produto',
     })
   }
 }

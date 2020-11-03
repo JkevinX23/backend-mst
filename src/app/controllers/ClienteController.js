@@ -45,7 +45,7 @@ class ClienteController {
 
     const exists2 = await Cliente.findOne({ where: { cpf } })
     if (exists2) {
-      return res.status(400).json({ error: 'CPF already exists.' })
+      return res.status(401).json({ error: 'CPF already exists.' })
     }
 
     let transaction
@@ -100,11 +100,15 @@ class ClienteController {
   }
 
   async index(req, res) {
+    const { option } = req
+    if (option !== 'administrador') {
+      return res.status(403).json({ error: 'Permissao negada' })
+    }
     const clientes = await Cliente.findAll({
-      attributes: { exclude: ['updatedAt', 'createdAt', 'password_hash'] },
+      attributes: { exclude: ['password_hash'] },
       include: { association: 'enderecos' },
     })
-    return res.status(200).json(clientes)
+    return res.json(clientes)
   }
 }
 

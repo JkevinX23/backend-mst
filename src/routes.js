@@ -16,15 +16,20 @@ const routes = new Router()
 const upload = multer(multerConfig)
 
 routes.post('/administrador', AdministradorController.store)
-routes.get('/administrador', AdministradorController.index)
 routes.post('/tipo-usuario', TipoUsuariosController.store)
 routes.post('/sessao', SessaoController.store)
 routes.post('/cliente', ClienteController.store)
-routes.get('/cliente', ClienteController.index)
 routes.post('/produto', ProdutosController.store)
-routes.get('/produto', ProdutosController.index)
 routes.post('/categoria', CategoriaController.store)
+
+routes.get('/administrador', AdministradorController.index)
+routes.get('/cliente', ClienteController.index)
+routes.get('/produto', ProdutosController.index)
+
 routes.use(authMiddleware)
+
 routes.post('/imagens', upload.single('file'), ImagensController.store)
+
+routes.put('/administrador', AdministradorController.update)
 
 export default routes

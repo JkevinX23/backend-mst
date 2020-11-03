@@ -5,10 +5,11 @@ class Categoria extends Model {
     super.init(
       {
         nome: Sequelize.STRING,
-        isValid: Sequelize.BOOLEAN,
+        isvalid: Sequelize.BOOLEAN,
       },
       {
         sequelize,
+        freezeTableName: true,
         tableName: 'categoria',
       },
     )
@@ -19,9 +20,9 @@ class Categoria extends Model {
   static associate(models) {
     this.belongsToMany(models.Produtos, {
       through: 'CategoriaProduto',
-      as: 'produtos',
+      as: 'produto',
       foreignKey: 'categoria_id',
-      // otherKey: 'produto_id',
+      otherKey: 'produto_id',
     })
   }
 }

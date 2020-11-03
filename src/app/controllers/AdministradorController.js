@@ -71,11 +71,71 @@ class AdminController {
   }
 
   async index(req, res) {
-    const adms = await Administrador.findAll({
+    const administradores = await Administrador.findAll({
       attributes: ['id', 'nome', 'email'],
     })
-    console.log(adms)
-    return res.status(200).json(adms)
+    return res.json(administradores)
+  }
+
+  async update(req, res) {
+    const schema = Yup.object().shape({
+      nome: Yup.string(),
+      email: Yup.string().email(),
+      oldPassword: Yup.string().min(6),
+      password: Yup.string().when('oldPassword', (oldPassword, field) =>
+        oldPassword ? field.required() : field,
+      ),
+    })
+
+    if (!(await schema.isValid(req.body))) {
+      return res.status(400).json({ error: 'Validation fails' })
+    }
+
+    const { option, usuario_id } = req
+
+    if (option !== 'administrador') {
+      return res.status(403).json({ error: 'Permissao negada' })
+    }
+    const { email, oldPassword } = req.body
+    const administrador = await Administrador.findByPk(usuario_id)
+    let alterEmail = false
+
+    if (email && email !== administrador.email) {
+      const exists = await Autorizacao.findOne({
+        where: { email },
+      })
+      if (exists) {
+        return res
+          .status(402)
+          .json({ error: 'Email já cadastrado na base de dados' })
+      }
+      alterEmail = true
+    }
+
+    if (oldPassword && !(await administrador.checkPassword(oldPassword))) {
+      return res.status(401).json({ error: 'Password does not match' })
+    }
+
+    let transaction
+    try {
+      transaction = await Administrador.sequelize.transaction()
+      const response = await administrador.update(req.body, { transaction })
+      if (alterEmail) {
+        const { id } = await TipoUsuarios.findOne({
+          where: { tipo: 'administrador' },
+        })
+        const adm = await Autorizacao.findOne({
+          where: { tipo_id: id, usuario_id },
+        })
+        await adm.update({ email }, { transaction })
+      }
+      await transaction.commit()
+      return res.json(response)
+    } catch (error) {
+      console.log(error)
+      if (transaction) await transaction.rollback()
+      return res.status(409).json({ error: 'Transaction failed' })
+    }
   }
 }
 

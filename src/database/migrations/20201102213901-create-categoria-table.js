@@ -14,7 +14,7 @@ module.exports = {
         unique: true,
       },
 
-      isValid: {
+      isvalid: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: true,

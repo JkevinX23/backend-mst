@@ -1,7 +1,7 @@
 import * as Yup from 'yup'
 
 import CategoriaProduto from '../models/CategoriaProduto'
-
+import Categoria from '../models/Categoria'
 import Produtos from '../models/Produtos'
 
 class ProdutosController {
@@ -30,10 +30,10 @@ class ProdutosController {
 
       const produto = await Produtos.create(prod, { transaction })
 
-      const mapProdutos = categorias.map(element => {
+      const mapProdutos = categorias.map(cat_id => {
         return {
           produto_id: produto.id,
-          categoria_id: element,
+          categoria_id: cat_id,
         }
       })
 
@@ -51,18 +51,17 @@ class ProdutosController {
   }
 
   async index(req, res) {
-    /*
-
-      @TODO
-
-      não funcional, consertar
-
-    */
-
-    const produtos = await Produtos.findAll({
-      include: { association: 'categorias' },
+    const { option } = req
+    if (option !== 'administrador') {
+      return res.status(403).json({ error: 'Permissao negada' })
+    }
+    const produtos = await CategoriaProduto.findAll({
+      include: [
+        { model: Produtos, as: 'produto' },
+        { model: Categoria, as: 'categoria' },
+      ],
     })
-    return res.status(200).json({ produtos })
+    return res.json({ produtos })
   }
 }
 

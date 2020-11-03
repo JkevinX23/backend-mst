@@ -22,9 +22,9 @@ class Produtos extends Model {
     })
     this.belongsToMany(models.Categoria, {
       through: 'CategoriaProduto',
-      as: 'categorias',
+      as: 'categoria',
       foreignKey: 'produto_id',
-      // otherKey: 'categoria_id',
+      otherKey: 'categoria_id',
     })
   }
 }

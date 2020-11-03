@@ -16,17 +16,27 @@ class CategoriaController {
     let transaction
     try {
       transaction = await Categoria.sequelize.transaction()
-      const categoria = {
+      const cat = {
         nome,
       }
-      const end = await Categoria.create(categoria, { transaction })
+      const categoria = await Categoria.create(cat, { transaction })
       await transaction.commit()
-      return res.json(end)
+      return res.json(categoria)
     } catch (err) {
       console.log(err)
       if (transaction) await transaction.rollback()
       return res.status(409).json({ error: 'Transaction failed' })
     }
+  }
+
+  async index(req, res) {
+    const { option } = req
+    if (option !== 'administrador') {
+      const categorias = await Categoria.findAll({ where: { isvalid: true } })
+      return res.json(categorias)
+    }
+    const categorias = await Categoria.findAll()
+    return res.json(categorias)
   }
 }
 
