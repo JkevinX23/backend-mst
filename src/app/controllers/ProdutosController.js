@@ -6,6 +6,11 @@ import Produtos from '../models/Produtos'
 
 class ProdutosController {
   async store(req, res) {
+    const { option } = req
+    if (option !== 'administrador') {
+      return res.status(403).json({ error: 'Permissao negada' })
+    }
+
     const schema = Yup.object().shape({
       nome: Yup.string().required(),
       descricao: Yup.string().required(),
@@ -61,6 +66,24 @@ class ProdutosController {
         { model: Categoria, as: 'categoria' },
       ],
     })
+
+    /*
+                        @ToDo
+
+            A forma correta de fazer isso deve ser:
+
+            1. Buscar todos os prudotos
+
+            2. Para cada produto, buscar os pares de ids correspondentes
+            na tabela "categoriaproduto"
+            que referenciam a categoria daquele produto
+
+            3. Fazer um agrupamento em que seja devolvido um array
+            composto por objetos que contenham 1 produto
+            e um array de categorias
+
+    */
+
     return res.json({ produtos })
   }
 }

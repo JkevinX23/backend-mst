@@ -7,17 +7,13 @@ class Administrador extends Model {
     super.init(
       {
         nome: Sequelize.STRING,
-
         email: Sequelize.STRING,
-
         password_hash: Sequelize.STRING,
-
         password: Sequelize.VIRTUAL,
       },
 
       {
         sequelize,
-
         tableName: 'Administradores',
       },
     )
