@@ -1,4 +1,5 @@
 import Sequelize, { Model } from 'sequelize'
+
 import bcrypt from 'bcryptjs'
 
 class Administrador extends Model {
@@ -6,12 +7,17 @@ class Administrador extends Model {
     super.init(
       {
         nome: Sequelize.STRING,
+
         email: Sequelize.STRING,
+
         password_hash: Sequelize.STRING,
+
         password: Sequelize.VIRTUAL,
       },
+
       {
         sequelize,
+
         tableName: 'Administradores',
       },
     )

@@ -5,24 +5,32 @@ class Produtos extends Model {
     super.init(
       {
         nome: Sequelize.STRING,
+
         descricao: Sequelize.STRING,
       },
+
       {
         sequelize,
+
         // tableName: 'produtos',
       },
     )
+
     return this
   }
 
   static associate(models) {
     this.belongsTo(models.Imagens, {
       foreignKey: 'imagem_id',
+
       as: 'Imagem',
     })
+
     this.belongsToMany(models.Categoria, {
       through: 'CategoriaProduto',
+
       foreignKey: 'produto_id',
+
       otherKey: 'categoria_id',
     })
   }
