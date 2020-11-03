@@ -63,5 +63,13 @@ class AdminController {
       return res.status(409).json({ error: 'Transaction failed' })
     }
   }
+
+  async index(req, res) {
+    const adms = await Administrador.findAll({
+      attributes: ['id', 'nome', 'email'],
+    })
+    console.log(adms)
+    return res.status(200).json(adms)
+  }
 }
 export default new AdminController()

@@ -46,6 +46,17 @@ class ProdutosController {
       return res.status(409).json({ error: 'Transaction failed' })
     }
   }
+
+  async index(req, res) {
+    /*
+      @TODO
+      não funcional, consertar
+    */
+    const produtos = await Produtos.findAll({
+      include: { association: 'categorias' },
+    })
+    return res.status(200).json({ produtos })
+  }
 }
 
 export default new ProdutosController()

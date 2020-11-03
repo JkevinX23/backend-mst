@@ -9,7 +9,7 @@ class Produtos extends Model {
       },
       {
         sequelize,
-        // tableName: 'produtos',
+        tableName: 'produtos',
       },
     )
     return this
@@ -22,8 +22,9 @@ class Produtos extends Model {
     })
     this.belongsToMany(models.Categoria, {
       through: 'CategoriaProduto',
+      as: 'categorias',
       foreignKey: 'produto_id',
-      otherKey: 'categoria_id',
+      // otherKey: 'categoria_id',
     })
   }
 }

@@ -43,6 +43,11 @@ class ClienteController {
       return res.status(400).json({ error: 'Email already exists.' })
     }
 
+    const exists2 = await Cliente.findOne({ where: { cpf } })
+    if (exists2) {
+      return res.status(400).json({ error: 'CPF already exists.' })
+    }
+
     let transaction
     try {
       transaction = await Cliente.sequelize.transaction()
@@ -92,6 +97,14 @@ class ClienteController {
       if (transaction) await transaction.rollback()
       return res.status(409).json({ error: 'Transaction failed' })
     }
+  }
+
+  async index(req, res) {
+    const clientes = await Cliente.findAll({
+      attributes: { exclude: ['updatedAt', 'createdAt', 'password_hash'] },
+      include: { association: 'enderecos' },
+    })
+    return res.status(200).json(clientes)
   }
 }
 
