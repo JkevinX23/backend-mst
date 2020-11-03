@@ -71,6 +71,11 @@ class AdminController {
   }
 
   async index(req, res) {
+    const { option } = req
+
+    if (option !== 'administrador') {
+      return res.status(403).json({ error: 'Permissao negada' })
+    }
     const administradores = await Administrador.findAll({
       attributes: ['id', 'nome', 'email'],
     })

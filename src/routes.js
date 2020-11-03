@@ -20,14 +20,15 @@ routes.post('/tipo-usuario', TipoUsuariosController.store)
 routes.post('/sessao', SessaoController.store)
 routes.post('/cliente', ClienteController.store)
 
-routes.get('/administrador', AdministradorController.index)
-routes.get('/cliente', ClienteController.index)
 routes.get('/categoria', CategoriaController.index)
+routes.get('/tipos', TipoUsuariosController.index)
 
 routes.use(authMiddleware)
 
+routes.get('/cliente', ClienteController.index)
 routes.get('/produto', ProdutosController.index)
 routes.get('/categoria-admin', CategoriaController.index)
+routes.get('/administrador', AdministradorController.index)
 
 routes.post('/produto', ProdutosController.store)
 routes.post('/imagens', upload.single('file'), ImagensController.store)

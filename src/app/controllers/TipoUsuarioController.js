@@ -24,5 +24,10 @@ class TipoUsuarioController {
       return res.status(409).json({ error: 'Transaction Error' })
     }
   }
+
+  async index(req, res) {
+    const tipos = await TipoUsuarios.findAll()
+    return res.json(tipos)
+  }
 }
 export default new TipoUsuarioController()
