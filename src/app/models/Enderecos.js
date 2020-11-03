@@ -19,5 +19,12 @@ class Enderecos extends Model {
     )
     return this
   }
+
+  static associate(models) {
+    this.hasMany(models.Cliente, {
+      foreignKey: 'id',
+      as: 'user',
+    })
+  }
 }
 export default Enderecos

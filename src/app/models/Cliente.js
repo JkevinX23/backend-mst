@@ -34,6 +34,7 @@ class Cliente extends Model {
   static associate(models) {
     this.belongsTo(models.Enderecos, {
       foreignKey: 'endereco_id',
+      as: 'enderecos',
     })
   }
 }

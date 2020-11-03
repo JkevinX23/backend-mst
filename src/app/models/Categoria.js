@@ -9,7 +9,7 @@ class Categoria extends Model {
       },
       {
         sequelize,
-        // tableName: 'categoria',
+        tableName: 'categoria',
       },
     )
 
@@ -19,8 +19,9 @@ class Categoria extends Model {
   static associate(models) {
     this.belongsToMany(models.Produtos, {
       through: 'CategoriaProduto',
+      as: 'produtos',
       foreignKey: 'categoria_id',
-      otherKey: 'produto_id',
+      // otherKey: 'produto_id',
     })
   }
 }
