@@ -1,18 +1,14 @@
 import * as Yup from 'yup'
 
 import Administrador from '../models/Administrador'
-
 import Autorizacao from '../models/Autorizacao'
-
 import TipoUsuarios from '../models/TipoUsuarios'
 
 class AdminController {
   async store(req, res) {
     const schema = Yup.object().shape({
       nome: Yup.string().required(),
-
       email: Yup.string().email().required(),
-
       password: Yup.string().required().min(6),
     })
 
@@ -29,15 +25,11 @@ class AdminController {
     }
 
     let transaction
-
     try {
       transaction = await Administrador.sequelize.transaction()
-
       const client = {
         nome,
-
         email,
-
         password,
       }
 
@@ -50,7 +42,6 @@ class AdminController {
       if (!tipo) {
         tipo = await TipoUsuarios.create(
           { tipo: 'administrador' },
-
           { transaction },
         )
       }
@@ -58,12 +49,9 @@ class AdminController {
       await Autorizacao.create(
         {
           email,
-
           tipo_id: tipo.id,
-
           usuario_id: admin.id,
         },
-
         { transaction },
       )
 
@@ -72,15 +60,12 @@ class AdminController {
       return res.json({
         admin: {
           nome,
-
           email,
         },
       })
     } catch (err) {
       console.log(err)
-
       await transaction.rollback()
-
       return res.status(409).json({ error: 'Transaction failed' })
     }
   }
@@ -89,9 +74,7 @@ class AdminController {
     const adms = await Administrador.findAll({
       attributes: ['id', 'nome', 'email'],
     })
-
     console.log(adms)
-
     return res.status(200).json(adms)
   }
 }

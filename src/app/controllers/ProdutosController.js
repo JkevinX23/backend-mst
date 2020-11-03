@@ -8,11 +8,8 @@ class ProdutosController {
   async store(req, res) {
     const schema = Yup.object().shape({
       nome: Yup.string().required(),
-
       descricao: Yup.string().required(),
-
       imagem_id: Yup.number().required(),
-
       categorias: Yup.array().required(),
     })
 
@@ -23,15 +20,11 @@ class ProdutosController {
     const { nome, descricao, imagem_id, categorias } = req.body
 
     let transaction
-
     try {
       transaction = await Produtos.sequelize.transaction()
-
       const prod = {
         nome,
-
         descricao,
-
         imagem_id,
       }
 
@@ -40,7 +33,6 @@ class ProdutosController {
       const mapProdutos = categorias.map(element => {
         return {
           produto_id: produto.id,
-
           categoria_id: element,
         }
       })
@@ -50,13 +42,10 @@ class ProdutosController {
       })
 
       await transaction.commit()
-
       return res.json(produto)
     } catch (err) {
       console.log(err)
-
       if (transaction) await transaction.rollback()
-
       return res.status(409).json({ error: 'Transaction failed' })
     }
   }
@@ -73,7 +62,6 @@ class ProdutosController {
     const produtos = await Produtos.findAll({
       include: { association: 'categorias' },
     })
-
     return res.status(200).json({ produtos })
   }
 }
