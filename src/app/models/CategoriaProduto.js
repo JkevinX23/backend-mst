@@ -15,16 +15,16 @@ class CategoriaProduto extends Model {
     return this
   }
 
-  static associate(models) {
-    this.belongsTo(models.Categoria, {
-      foreignKey: 'categoria_id',
-      as: 'categoria',
-    })
-    this.belongsTo(models.Produtos, {
-      foreignKey: 'produto_id',
-      as: 'produto',
-    })
-  }
+  // static associate(models) {
+  //   this.belongsTo(models.Categoria, {
+  //     foreignKey: 'categoria_id',
+  //     as: 'categoria',
+  //   })
+  //   this.belongsTo(models.Produtos, {
+  //     foreignKey: 'produto_id',
+  //     as: 'produto',
+  //   })
+  // }
 }
 
 export default CategoriaProduto

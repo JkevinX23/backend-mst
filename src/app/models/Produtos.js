@@ -21,10 +21,10 @@ class Produtos extends Model {
       as: 'Imagem',
     })
     this.belongsToMany(models.Categoria, {
-      through: 'CategoriaProduto',
-      as: 'categoria',
+      through: 'categoria_produto',
+      as: 'categorias',
       foreignKey: 'produto_id',
-      otherKey: 'categoria_id',
+      // otherKey: 'categoria_id',
     })
   }
 }

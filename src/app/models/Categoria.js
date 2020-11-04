@@ -19,10 +19,10 @@ class Categoria extends Model {
 
   static associate(models) {
     this.belongsToMany(models.Produtos, {
-      through: 'CategoriaProduto',
-      as: 'produto',
+      through: 'categoria_produto',
+      as: 'produtos',
       foreignKey: 'categoria_id',
-      otherKey: 'produto_id',
+      // otherKey: 'produto_id',
     })
   }
 }

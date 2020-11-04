@@ -1,6 +1,4 @@
 import * as Yup from 'yup'
-
-import CategoriaProduto from '../models/CategoriaProduto'
 import Categoria from '../models/Categoria'
 import Produtos from '../models/Produtos'
 
@@ -34,17 +32,7 @@ class ProdutosController {
       }
 
       const produto = await Produtos.create(prod, { transaction })
-
-      const mapProdutos = categorias.map(cat_id => {
-        return {
-          produto_id: produto.id,
-          categoria_id: cat_id,
-        }
-      })
-
-      await CategoriaProduto.bulkCreate(mapProdutos, {
-        transaction,
-      })
+      await produto.setCategorias(categorias, { transaction })
 
       await transaction.commit()
       return res.json(produto)
@@ -60,30 +48,17 @@ class ProdutosController {
     if (option !== 'administrador') {
       return res.status(403).json({ error: 'Permissao negada' })
     }
-    const produtos = await CategoriaProduto.findAll({
+    const produtos = await Produtos.findAll({
       include: [
-        { model: Produtos, as: 'produto' },
-        { model: Categoria, as: 'categoria' },
+        {
+          model: Categoria,
+          as: 'categorias',
+          through: {
+            attributes: [],
+          },
+        },
       ],
     })
-
-    /*
-                        @ToDo
-
-            A forma correta de fazer isso deve ser:
-
-            1. Buscar todos os prudotos
-
-            2. Para cada produto, buscar os pares de ids correspondentes
-            na tabela "categoriaproduto"
-            que referenciam a categoria daquele produto
-
-            3. Fazer um agrupamento em que seja devolvido um array
-            composto por objetos que contenham 1 produto
-            e um array de categorias
-
-    */
-
     return res.json({ produtos })
   }
 }
