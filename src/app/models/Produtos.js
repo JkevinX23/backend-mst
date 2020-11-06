@@ -26,6 +26,10 @@ class Produtos extends Model {
       foreignKey: 'produto_id',
       // otherKey: 'categoria_id',
     })
+    this.hasMany(models.Oferta, {
+      foreignKey: 'id',
+      as: 'oferta',
+    })
   }
 }
 

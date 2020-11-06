@@ -11,6 +11,9 @@ import ClienteController from './app/controllers/ClienteController'
 import ImagensController from './app/controllers/ImagensController'
 import ProdutosController from './app/controllers/ProdutosController'
 import CategoriaController from './app/controllers/CategoriaController'
+import ValidadeOfertaController from './app/controllers/ValidadeOfertaController'
+import OfertaController from './app/controllers/OfertaController'
+
 
 const routes = new Router()
 const upload = multer(multerConfig)
@@ -29,10 +32,14 @@ routes.get('/cliente', ClienteController.index)
 routes.get('/produto', ProdutosController.index)
 routes.get('/categoria-admin', CategoriaController.index)
 routes.get('/administrador', AdministradorController.index)
+routes.get('/validade-oferta', ValidadeOfertaController.index)
+routes.get('/oferta', OfertaController.index)
 
 routes.post('/produto', ProdutosController.store)
 routes.post('/imagens', upload.single('file'), ImagensController.store)
 routes.post('/categoria', CategoriaController.store)
+routes.post('/validade-oferta', ValidadeOfertaController.store)
+routes.post('/oferta', OfertaController.store)
 
 routes.put('/administrador', AdministradorController.update)
 routes.put('/categoria', CategoriaController.update)

@@ -9,6 +9,8 @@ import Produtos from '../app/models/Produtos'
 import Categoria from '../app/models/Categoria'
 import CategoriaProduto from '../app/models/CategoriaProduto'
 import databaseConfig from '../config/database'
+import ValidadeOferta from '../app/models/ValidadeOferta'
+import Oferta from '../app/models/Oferta'
 
 const models = [
   Administrador,
@@ -20,6 +22,8 @@ const models = [
   Produtos,
   Categoria,
   CategoriaProduto,
+  ValidadeOferta,
+  Oferta
 ]
 
 class Database {
