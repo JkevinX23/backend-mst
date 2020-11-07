@@ -101,10 +101,13 @@ class ClienteController {
 
   async index(req, res) {
     const { option } = req
+    const { pagina = 1, limite = 20 } = req.query
     if (option !== 'administrador') {
       return res.status(403).json({ error: 'Permissao negada' })
     }
     const clientes = await Cliente.findAll({
+      limit: parseInt(limite, 10),
+      offset: (pagina - 1) * limite,
       attributes: { exclude: ['password_hash'] },
       include: { association: 'enderecos' },
     })
