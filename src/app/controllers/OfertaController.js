@@ -1,7 +1,7 @@
 import * as Yup from 'yup'
 import Oferta from '../models/Oferta'
-import ValidadeOferta from '../models/ValidadeOferta'
-import Produtos from '../models/Produtos'
+// import ValidadeOferta from '../models/ValidadeOferta'
+// import Produtos from '../models/Produtos'
 
 class OfertaController {
   async store(req, res) {
@@ -16,7 +16,12 @@ class OfertaController {
       return res.status(400).json({ error: 'Validation fails' })
     }
 
-    const { produto_id, quantidade, valor_unitario, validade_oferta_id } = req.body
+    const {
+      produto_id,
+      quantidade,
+      valor_unitario,
+      validade_oferta_id,
+    } = req.body
 
     let transaction
     try {
@@ -25,7 +30,7 @@ class OfertaController {
         produto_id,
         quantidade,
         valor_unitario,
-        validade_oferta_id
+        validade_oferta_id,
       }
 
       const oferta = await Oferta.create(OfertaObj, { transaction })
@@ -45,14 +50,27 @@ class OfertaController {
       return res.status(403).json({ error: 'Permissao negada' })
     }
     const clientes = await Oferta.findAll({
-      // attributes: { exclude: ['password_hash'] },
-      include: {
-        association: 'produtos',
-        attributes: {
-          exclude: ['createdAt','updatedAt']
-        }
+      include: [
+        {
+          association: 'produtos',
+          attributes: {
+            exclude: ['createdAt', 'updatedAt'],
+          },
+          include: {
+            association: 'imagem',
+            attributes: ['url', 'path'],
+          },
+        },
+        {
+          association: 'validade',
+          attributes: {
+            exclude: ['createdAt', 'updatedAt'],
+          },
+        },
+      ],
+      attributes: {
+        exclude: ['createdAt', 'updatedAt', 'validade_oferta_id'],
       },
-      attributes: { exclude: ['createdAt','updatedAt']}
     })
     return res.json(clientes)
   }

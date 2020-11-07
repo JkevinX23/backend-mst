@@ -18,7 +18,7 @@ class Produtos extends Model {
   static associate(models) {
     this.belongsTo(models.Imagens, {
       foreignKey: 'imagem_id',
-      as: 'Imagem',
+      as: 'imagem',
     })
     this.belongsToMany(models.Categoria, {
       through: 'categoria_produto',
