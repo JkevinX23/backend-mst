@@ -87,9 +87,11 @@ class AdminController {
       nome: Yup.string(),
       email: Yup.string().email(),
       oldPassword: Yup.string().min(6),
-      password: Yup.string().when('oldPassword', (oldPassword, field) =>
-        oldPassword ? field.required() : field,
-      ),
+      password: Yup.string()
+        .min(6)
+        .when('oldPassword', (oldPassword, field) =>
+          oldPassword ? field.required() : field,
+        ),
     })
 
     if (!(await schema.isValid(req.body))) {

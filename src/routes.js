@@ -14,7 +14,6 @@ import CategoriaController from './app/controllers/CategoriaController'
 import ValidadeOfertaController from './app/controllers/ValidadeOfertaController'
 import OfertaController from './app/controllers/OfertaController'
 
-
 const routes = new Router()
 const upload = multer(multerConfig)
 
@@ -43,5 +42,6 @@ routes.post('/oferta', OfertaController.store)
 
 routes.put('/administrador', AdministradorController.update)
 routes.put('/categoria', CategoriaController.update)
+routes.put('/cliente', ClienteController.update)
 
 export default routes
