@@ -6,9 +6,8 @@ class Oferta extends Model {
       {
         produto_id: Sequelize.INTEGER,
         quantidade: Sequelize.INTEGER,
-        valor_unitario: Sequelize.DECIMAL(10,2),
+        valor_unitario: Sequelize.DECIMAL(10, 2),
         validade_oferta_id: Sequelize.INTEGER,
-
       },
       {
         sequelize,
@@ -29,7 +28,6 @@ class Oferta extends Model {
       as: 'validade',
     })
   }
-
 }
 
 export default Oferta

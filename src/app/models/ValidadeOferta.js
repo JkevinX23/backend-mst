@@ -6,7 +6,7 @@ class ValidadeOferta extends Model {
       {
         validade: Sequelize.DATE,
         status: Sequelize.ENUM({
-          values: ['ativa', 'inativa']
+          values: ['ativa', 'inativa'],
         }),
       },
       {
@@ -16,6 +16,7 @@ class ValidadeOferta extends Model {
     )
     return this
   }
+
   static associate(models) {
     this.hasMany(models.Oferta, {
       foreignKey: 'id',

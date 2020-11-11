@@ -1,6 +1,6 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('oferta', {
+    return queryInterface.createTable('oferta_pedidos', {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -8,27 +8,22 @@ module.exports = {
         allowNull: false,
       },
 
-      produto_id: {
+      oferta_id: {
         type: Sequelize.INTEGER,
-        references: { model: 'produtos', key: 'id' },
+        references: { model: 'oferta', key: 'id' },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
         allowNull: false,
       },
-
+      pedido_id: {
+        type: Sequelize.INTEGER,
+        references: { model: 'pedidos', key: 'id' },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
+        allowNull: false,
+      },
       quantidade: {
         type: Sequelize.INTEGER,
-        allowNull: false,
-      },
-
-      valor_unitario: {
-        type: Sequelize.DECIMAL(10, 2),
-        allowNull: false,
-      },
-
-      validade_oferta_id: {
-        type: Sequelize.INTEGER,
-        references: { model: 'validade_oferta', key: 'id' },
         allowNull: false,
       },
 
@@ -45,6 +40,6 @@ module.exports = {
   },
 
   down: queryInterface => {
-    return queryInterface.dropTable('oferta')
+    return queryInterface.dropTable('oferta_pedidos')
   },
 }
