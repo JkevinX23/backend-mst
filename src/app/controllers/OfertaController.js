@@ -47,9 +47,36 @@ class OfertaController {
   async index(req, res) {
     const { option } = req
     if (option !== 'administrador') {
-      return res.status(403).json({ error: 'Permissao negada' })
+      const ofertas = await Oferta.findAll({
+        include: [
+          {
+            association: 'produtos',
+            attributes: {
+              exclude: ['createdAt', 'updatedAt'],
+            },
+            include: {
+              association: 'imagem',
+              attributes: ['url', 'path'],
+            },
+          },
+          {
+            association: 'validade',
+            attributes: {
+              exclude: ['createdAt', 'updatedAt'],
+            },
+            where: {
+              status: 'ativa',
+            },
+            required: true,
+          },
+        ],
+        attributes: {
+          exclude: ['updatedAt', 'validade_oferta_id'],
+        },
+      })
+      return res.json(ofertas)
     }
-    const clientes = await Oferta.findAll({
+    const ofertas = await Oferta.findAll({
       include: [
         {
           association: 'produtos',
@@ -69,10 +96,10 @@ class OfertaController {
         },
       ],
       attributes: {
-        exclude: ['createdAt', 'updatedAt', 'validade_oferta_id'],
+        exclude: ['updatedAt', 'validade_oferta_id'],
       },
     })
-    return res.json(clientes)
+    return res.json(ofertas)
   }
 }
 

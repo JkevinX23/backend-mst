@@ -24,6 +24,7 @@ routes.post('/cliente', ClienteController.store)
 
 routes.get('/categoria', CategoriaController.index)
 routes.get('/tipos', TipoUsuariosController.index)
+routes.get('/oferta', OfertaController.index)
 
 routes.use(authMiddleware)
 
@@ -32,7 +33,7 @@ routes.get('/produto', ProdutosController.index)
 routes.get('/categoria-admin', CategoriaController.index)
 routes.get('/administrador', AdministradorController.index)
 routes.get('/validade-oferta', ValidadeOfertaController.index)
-routes.get('/oferta', OfertaController.index)
+routes.get('/oferta-admin', OfertaController.index)
 
 routes.post('/produto', ProdutosController.store)
 routes.post('/imagens', upload.single('file'), ImagensController.store)
@@ -43,5 +44,6 @@ routes.post('/oferta', OfertaController.store)
 routes.put('/administrador', AdministradorController.update)
 routes.put('/categoria', CategoriaController.update)
 routes.put('/cliente', ClienteController.update)
+routes.put('/validade-oferta', ValidadeOfertaController.update)
 
 export default routes
