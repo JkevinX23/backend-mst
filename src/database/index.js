@@ -23,7 +23,7 @@ const models = [
   Categoria,
   CategoriaProduto,
   ValidadeOferta,
-  Oferta
+  Oferta,
 ]
 
 class Database {
