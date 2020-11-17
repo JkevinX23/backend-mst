@@ -81,7 +81,7 @@ class AdminController {
     })
     return res.json(administradores)
   }
-  
+
   async update(req, res) {
     const schema = Yup.object().shape({
       nome: Yup.string(),

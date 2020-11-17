@@ -1,7 +1,6 @@
 import * as Yup from 'yup'
 import Oferta from '../models/Oferta'
-// import ValidadeOferta from '../models/ValidadeOferta'
-// import Produtos from '../models/Produtos'
+import Pedido from '../models/Pedido'
 
 class OfertaController {
   async store(req, res) {
@@ -54,10 +53,16 @@ class OfertaController {
             attributes: {
               exclude: ['createdAt', 'updatedAt'],
             },
-            include: {
-              association: 'imagem',
-              attributes: ['url', 'path'],
-            },
+            include: [
+              {
+                association: 'imagem',
+                attributes: ['url', 'path'],
+              },
+              {
+                association: 'categorias',
+                attributes: ['id', 'nome'],
+              },
+            ],
           },
           {
             association: 'validade',
@@ -74,7 +79,17 @@ class OfertaController {
           exclude: ['updatedAt', 'validade_oferta_id'],
         },
       })
-      return res.json(ofertas)
+      const response = await Promise.all(
+        ofertas.map(async oferta => {
+          const pedidos = await Pedido.findAll({
+            where: { id: oferta.id, status: ['aberto', 'entregue'] },
+          })
+          const off = oferta
+          const qtd_disponivel = oferta.quantidade - pedidos.length
+          return { off, qtd_disponivel }
+        }),
+      )
+      return res.json(response)
     }
     const ofertas = await Oferta.findAll({
       include: [
@@ -83,15 +98,24 @@ class OfertaController {
           attributes: {
             exclude: ['createdAt', 'updatedAt'],
           },
-          include: {
-            association: 'imagem',
-            attributes: ['url', 'path'],
-          },
+          include: [
+            {
+              association: 'imagem',
+              attributes: ['url', 'path'],
+            },
+            {
+              association: 'categorias',
+              attributes: ['id', 'nome'],
+            },
+          ],
         },
         {
           association: 'validade',
           attributes: {
             exclude: ['createdAt', 'updatedAt'],
+          },
+          where: {
+            status: 'ativa',
           },
         },
       ],
@@ -99,8 +123,17 @@ class OfertaController {
         exclude: ['updatedAt', 'validade_oferta_id'],
       },
     })
-    return res.json(ofertas)
+    const response = await Promise.all(
+      ofertas.map(async oferta => {
+        const pedidos = await Pedido.findAll({
+          where: { id: oferta.id, status: ['aberto', 'entregue'] },
+        })
+        const off = oferta
+        const qtd_disponivel = oferta.quantidade - pedidos.length
+        return { off, qtd_disponivel }
+      }),
+    )
+    return res.json(response)
   }
 }
-
 export default new OfertaController()
