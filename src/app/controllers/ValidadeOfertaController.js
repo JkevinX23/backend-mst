@@ -102,6 +102,11 @@ class ValidadeOfertaController {
       const { id, validade: v, status: s } = await validadeOferta.update(
         update,
         {
+          where: {
+            id: validade_id,
+          },
+        },
+        {
           transaction,
         },
       )
