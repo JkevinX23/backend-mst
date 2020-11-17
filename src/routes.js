@@ -15,6 +15,7 @@ import ValidadeOfertaController from './app/controllers/ValidadeOfertaController
 import OfertaController from './app/controllers/OfertaController'
 import PedidoController from './app/controllers/PedidoController'
 import TipoPagamentosController from './app/controllers/TipoPagamentosController'
+import adminAuth from './app/middlewares/adminAuth'
 
 const routes = new Router()
 const upload = multer(multerConfig)
@@ -27,7 +28,11 @@ routes.post('/cliente', ClienteController.store)
 routes.get('/categoria', CategoriaController.index)
 routes.get('/tipos', TipoUsuariosController.index)
 routes.get('/oferta', OfertaController.index)
-
+routes.post(
+  '/imagens',
+  [adminAuth, upload.single('file')],
+  ImagensController.store,
+)
 routes.use(authMiddleware)
 
 routes.get('/cliente', ClienteController.index)
@@ -38,7 +43,6 @@ routes.get('/validade-oferta', ValidadeOfertaController.index)
 routes.get('/oferta-admin', OfertaController.index)
 routes.get('/tipo-pagamento', TipoPagamentosController.index)
 
-routes.post('/imagens', upload.single('file'), ImagensController.store)
 routes.post('/produto', ProdutosController.store)
 routes.post('/pedido', PedidoController.store)
 routes.post('/tipo-pagamento', TipoPagamentosController.store)
