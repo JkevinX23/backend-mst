@@ -1,0 +1,30 @@
+"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }var _sequelize = require('sequelize'); var _sequelize2 = _interopRequireDefault(_sequelize);
+
+class Categoria extends _sequelize.Model {
+  static init(sequelize) {
+    super.init(
+      {
+        nome: _sequelize2.default.STRING,
+        isvalid: _sequelize2.default.BOOLEAN,
+      },
+      {
+        sequelize,
+        freezeTableName: true,
+        tableName: 'categoria',
+      },
+    )
+
+    return this
+  }
+
+  static associate(models) {
+    this.belongsToMany(models.Produtos, {
+      through: 'categoria_produto',
+      as: 'produtos',
+      foreignKey: 'categoria_id',
+      // otherKey: 'produto_id',
+    })
+  }
+}
+
+exports. default = Categoria
