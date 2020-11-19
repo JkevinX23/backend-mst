@@ -1,6 +1,10 @@
+/* eslint-disable */
 import * as Yup from 'yup'
 import Pedido from '../models/Pedido'
 import OfertaPedido from '../models/OfertaPedido'
+import Oferta from '../models/Oferta'
+
+const { Op } = require('sequelize')
 
 class PedidoController {
   async store(req, res) {
@@ -28,29 +32,63 @@ class PedidoController {
     })
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' })
+      return res.st      // objPedido.status = status
+      // objPedido.cliente_id = cliente_idatus(400).json({ error: 'Validation fails' })
     }
-
-    /*
-              @FALTANDO VERIFICACAO DE QUANTIDADES ( SE TEM ESTOQUE )
-
-    */
 
     const { option, usuario_id } = req
 
     let transaction
+
     try {
-      transaction = await Pedido.sequelize.transaction()
+      transaction = await Oferta.sequelize.transaction()
+
+      const ofertas = req.body.ofertas.map(off => ({
+        quantidade: off.quantidade,
+        id: off.oferta_id,
+      }))
+
+      const arrayOfertas = []
+
+      for (const oferta of ofertas) {
+        arrayOfertas.push(
+          await Oferta.findByPk(
+            oferta.id,
+            { plain: true, raw: true },
+            { transaction },
+          ),
+        )
+      }
+
+      const itensEsgotados = arrayOfertas.filter(
+        (off, index) => off.quantidade < ofertas[index].quantidade,
+      )
+      if (itensEsgotados.length > 0) {
+        // throw new Error();
+        transaction.rollback()
+        return res.json({itensEsgotados: itensEsgotados})
+      }
+
+      arrayOfertas.forEach((element, index) => {
+        element.quantidade -= ofertas[index].quantidade
+      })
+      console.log(arrayOfertas)
+
+      for (const off of arrayOfertas) {
+        await Oferta.update(off, { where: { id: off.id } }, { transaction })
+      }
+
       const objPedido = {}
       const {
-        ofertas,
         cliente_id,
         tipo_pagamento_id,
+        tipo_frete_id,
         status,
         valor_frete,
       } = req.body
       objPedido.tipo_pagamento_id = tipo_pagamento_id
       objPedido.valor_frete = valor_frete
+      objPedido.tipo_frete_id = tipo_frete_id
 
       if (option === 'administrador') {
         if (!cliente_id) {
@@ -67,16 +105,18 @@ class PedidoController {
       const pedido = await Pedido.create(objPedido, { transaction })
 
       const ofertaPedidos = ofertas.map(off => ({
-        ...off,
+        quantidade: off.quantidade,
+        oferta_id: off.id,
         pedido_id: pedido.id,
       }))
 
       const oferta_pedido = await OfertaPedido.bulkCreate(ofertaPedidos, {
         transaction,
       })
-
       await transaction.commit()
+
       return res.json(oferta_pedido)
+
     } catch (error) {
       console.log(error)
       if (transaction) await transaction.rollback()
