@@ -8,6 +8,7 @@ class OfertaPedido extends Model {
       },
       {
         sequelize,
+        tableName: 'oferta_pedidos',
       },
     )
     return this

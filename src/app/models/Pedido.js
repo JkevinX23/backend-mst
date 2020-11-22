@@ -16,6 +16,13 @@ class Pedido extends Model {
   }
 
   static associate(models) {
+    this.belongsToMany(models.Oferta, {
+      through: 'oferta_pedidos',
+      as: 'ofertas',
+      foreignKey: 'pedido_id',
+      // otherKey: 'categoria_id',
+    })
+
     this.belongsTo(models.Cliente, {
       foreignKey: 'cliente_id',
       as: 'clientes',

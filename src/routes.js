@@ -42,6 +42,7 @@ routes.get('/administrador', AdministradorController.index)
 routes.get('/validade-oferta', ValidadeOfertaController.index)
 routes.get('/oferta-admin', OfertaController.index)
 routes.get('/tipo-pagamento', TipoPagamentosController.index)
+routes.get('/pedido', PedidoController.index)
 
 routes.post('/produto', ProdutosController.store)
 routes.post('/pedido', PedidoController.store)

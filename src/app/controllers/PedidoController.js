@@ -1,4 +1,3 @@
-/* eslint-disable */
 import * as Yup from 'yup'
 import Pedido from '../models/Pedido'
 import OfertaPedido from '../models/OfertaPedido'
@@ -32,7 +31,7 @@ class PedidoController {
     })
 
     if (!(await schema.isValid(req.body))) {
-      return res.st      // objPedido.status = status
+      return res.st // objPedido.status = status
       // objPedido.cliente_id = cliente_idatus(400).json({ error: 'Validation fails' })
     }
 
@@ -66,7 +65,7 @@ class PedidoController {
       if (itensEsgotados.length > 0) {
         // throw new Error();
         transaction.rollback()
-        return res.json({itensEsgotados: itensEsgotados})
+        return res.json({ itensEsgotados })
       }
 
       arrayOfertas.forEach((element, index) => {
@@ -116,12 +115,65 @@ class PedidoController {
       await transaction.commit()
 
       return res.json(oferta_pedido)
-
     } catch (error) {
       console.log(error)
       if (transaction) await transaction.rollback()
       return res.status(409).json({ error: 'Transaction failed' })
     }
+  }
+
+  async index(req, res) {
+    const pedidos = await Pedido.findAll({
+      include: [
+        {
+          model: Oferta,
+          as: 'ofertas',
+          through: {
+            attributes: ['quantidade'],
+          },
+          include: [
+            {
+              association: 'produtos',
+              attributes: ['id', 'nome', 'descricao', 'imagem_id'],
+              include: [
+                {
+                  association: 'imagem',
+                  attributes: ['url', 'path'],
+                },
+              ],
+            },
+          ],
+          attributes: {
+            exclude: ['updatedAt', 'createdAt', 'quantidade', 'produto_id'],
+          },
+        },
+        {
+          association: 'clientes',
+          attributes: {
+            exclude: ['updatedAt', 'createdAt', 'password_hash'],
+          },
+          include: [
+            {
+              association: 'enderecos',
+              attributes: {
+                exclude: ['updatedAt', 'createdAt'],
+              },
+            },
+          ],
+        },
+        {
+          association: 'administrador',
+          attributes: {
+            exclude: ['updatedAt', 'createdAt', 'password_hash'],
+          },
+        },
+      ],
+
+      attributes: {
+        exclude: ['updatedAt', 'createdAt'],
+      },
+    })
+    return res.json(pedidos)
   }
 }
 
