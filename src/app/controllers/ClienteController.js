@@ -108,8 +108,15 @@ class ClienteController {
     const clientes = await Cliente.findAll({
       limit: parseInt(limite, 10),
       offset: (pagina - 1) * limite,
-      attributes: { exclude: ['password_hash'] },
-      include: { association: 'enderecos' },
+      include: {
+        association: 'enderecos',
+        attributes: {
+          exclude: ['createdAt', 'updatedAt'],
+        },
+      },
+      attributes: {
+        exclude: ['password_hash', 'endereco_id', 'createdAt', 'updatedAt'],
+      },
     })
     return res.json(clientes)
   }
@@ -209,6 +216,33 @@ class ClienteController {
       if (transaction) await transaction.rollback()
       return res.status(409).json({ error: 'Transaction failed' })
     }
+  }
+
+  async show(req, res) {
+    const { option, usuario_id } = req
+    const { id } = req.params
+    if (option !== 'administrador' && id !== usuario_id) {
+      return res.status(403).json({ error: 'Permissao negada' })
+    }
+
+    const cliente = await Cliente.findOne({
+      where: {
+        id,
+      },
+      include: {
+        association: 'enderecos',
+        attributes: {
+          exclude: ['createdAt', 'updatedAt'],
+        },
+      },
+      attributes: {
+        exclude: ['password_hash', 'endereco_id', 'createdAt', 'updatedAt'],
+      },
+    })
+    if (!cliente) {
+      return res.json({ error: 'not found' })
+    }
+    return res.json(cliente)
   }
 }
 

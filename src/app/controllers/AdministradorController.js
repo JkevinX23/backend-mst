@@ -144,6 +144,27 @@ class AdminController {
       return res.status(409).json({ error: 'Transaction failed' })
     }
   }
+
+  async show(req, res) {
+    const { option } = req
+    const { id } = req.params
+    if (option !== 'administrador') {
+      return res.status(403).json({ error: 'Permissao negada' })
+    }
+
+    const administrador = await Administrador.findOne({
+      where: {
+        id,
+      },
+      attributes: {
+        exclude: ['password_hash', 'createdAt', 'updatedAt'],
+      },
+    })
+    if (!administrador) {
+      return res.json({ error: 'not found' })
+    }
+    return res.json(administrador)
+  }
 }
 
 export default new AdminController()

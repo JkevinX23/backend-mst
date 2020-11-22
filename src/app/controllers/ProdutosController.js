@@ -61,10 +61,61 @@ class ProdutosController {
           through: {
             attributes: [],
           },
+          attributes: {
+            exclude: ['createdAt', 'updatedAt'],
+          },
+        },
+        {
+          association: 'imagem',
+          attributes: {
+            exclude: ['createdAt', 'updatedAt', 'id', 'nome'],
+          },
         },
       ],
+      attributes: {
+        exclude: ['createdAt', 'updatedAt', 'imagem_id'],
+      },
     })
     return res.json({ produtos })
+  }
+
+  async show(req, res) {
+    const { option } = req
+    const { id } = req.params
+    if (option !== 'administrador') {
+      return res.status(403).json({ error: 'Permissao negada' })
+    }
+
+    const produtos = await Produtos.findOne({
+      where: {
+        id,
+      },
+      include: [
+        {
+          model: Categoria,
+          as: 'categorias',
+          through: {
+            attributes: [],
+          },
+          attributes: {
+            exclude: ['createdAt', 'updatedAt'],
+          },
+        },
+        {
+          association: 'imagem',
+          attributes: {
+            exclude: ['createdAt', 'updatedAt', 'id', 'nome'],
+          },
+        },
+      ],
+      attributes: {
+        exclude: ['createdAt', 'updatedAt', 'imagem_id'],
+      },
+    })
+    if (!produtos) {
+      return res.json({ error: 'not found' })
+    }
+    return res.json(produtos)
   }
 }
 

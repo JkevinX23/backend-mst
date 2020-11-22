@@ -170,7 +170,7 @@ class PedidoController {
       ],
 
       attributes: {
-        exclude: ['updatedAt', 'createdAt'],
+        exclude: ['updatedAt', 'createdAt', 'cliente_id', 'administrador_id'],
       },
     })
     return res.json(pedidos)

@@ -56,4 +56,8 @@ routes.put('/categoria', CategoriaController.update)
 routes.put('/cliente', ClienteController.update)
 routes.put('/validade-oferta', ValidadeOfertaController.update)
 
+routes.get('/cliente/:id', ClienteController.show)
+routes.get('/administrador/:id', AdministradorController.show)
+routes.get('/produto/:id', ProdutosController.show)
+
 export default routes
