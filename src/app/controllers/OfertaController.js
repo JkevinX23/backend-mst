@@ -1,6 +1,8 @@
 import * as Yup from 'yup'
+import { Op } from 'sequelize'
 import Oferta from '../models/Oferta'
-import Pedido from '../models/Pedido'
+// import Pedido from '../models/Pedido'
+import Categoria from '../models/Categoria'
 
 class OfertaController {
   async store(req, res) {
@@ -45,58 +47,22 @@ class OfertaController {
 
   async index(req, res) {
     const { option } = req
-    if (option !== 'administrador') {
-      const ofertas = await Oferta.findAll({
-        include: [
-          {
-            association: 'produtos',
-            attributes: {
-              exclude: ['createdAt', 'updatedAt'],
-            },
-            include: [
-              {
-                association: 'imagem',
-                attributes: ['url', 'path'],
-              },
-              {
-                association: 'categorias',
-                attributes: ['id', 'nome'],
-              },
-            ],
-          },
-          {
-            association: 'validade',
-            attributes: {
-              exclude: ['createdAt', 'updatedAt'],
-            },
-            where: {
-              status: 'ativa',
-            },
-            required: true,
-          },
-        ],
-        attributes: {
-          exclude: ['updatedAt', 'validade_oferta_id'],
-        },
-      })
-      const response = await Promise.all(
-        ofertas.map(async oferta => {
-          const pedidos = await Pedido.findAll({
-            where: { id: oferta.id, status: ['aberto', 'entregue'] },
-          })
-          const off = oferta
-          const qtd_disponivel = oferta.quantidade - pedidos.length
-          return { off, qtd_disponivel }
-        }),
-      )
-      return res.json(response)
+
+    const where = {
+      status: {
+        [Op.not]: null,
+      },
     }
+    if (option !== 'administrador') {
+      where.status = 'ativa'
+    }
+
     const ofertas = await Oferta.findAll({
       include: [
         {
           association: 'produtos',
           attributes: {
-            exclude: ['createdAt', 'updatedAt'],
+            exclude: ['createdAt', 'updatedAt', 'imagem_id'],
           },
           include: [
             {
@@ -104,8 +70,14 @@ class OfertaController {
               attributes: ['url', 'path'],
             },
             {
-              association: 'categorias',
-              attributes: ['id', 'nome'],
+              model: Categoria,
+              as: 'categorias',
+              through: {
+                attributes: [],
+              },
+              attributes: {
+                exclude: ['updatedAt', 'createdAt', 'isvalid'],
+              },
             },
           ],
         },
@@ -114,26 +86,30 @@ class OfertaController {
           attributes: {
             exclude: ['createdAt', 'updatedAt'],
           },
-          where: {
-            status: 'ativa',
-          },
+          where,
+          required: true,
         },
       ],
       attributes: {
-        exclude: ['updatedAt', 'validade_oferta_id'],
+        exclude: ['createdAt', 'updatedAt', 'validade_oferta_id', 'produto_id'],
       },
     })
-    const response = await Promise.all(
-      ofertas.map(async oferta => {
-        const pedidos = await Pedido.findAll({
-          where: { id: oferta.id, status: ['aberto', 'entregue'] },
-        })
-        const off = oferta
-        const qtd_disponivel = oferta.quantidade - pedidos.length
-        return { off, qtd_disponivel }
-      }),
-    )
-    return res.json(response)
+    // debater depois // ("quantidade" de oferta é o restante atualmente)
+
+    // const response = await Promise.all(
+    //   ofertas.map(async oferta => {
+    //     const pedidos = await Pedido.findAll({
+    //       where: { id: oferta.id, status: ['aberto', 'entregue'] },
+    //     })
+    //     const off = oferta
+    //     const qtd_disponivel = oferta.quantidade - pedidos.length
+    //     return { off, qtd_disponivel }
+    //   }),
+    // )
+
+    //
+
+    return res.json(ofertas)
   }
 }
 export default new OfertaController()
