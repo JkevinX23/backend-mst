@@ -31,8 +31,9 @@ class PedidoController {
     })
 
     if (!(await schema.isValid(req.body))) {
-      return res.st // objPedido.status = status
-      // objPedido.cliente_id = cliente_idatus(400).json({ error: 'Validation fails' })
+      return res.status(400).json({ error: 'Validation fails' })
+      // objPedido.status = status
+      // objPedido.cliente_id = cliente_id
     }
 
     const { option, usuario_id } = req
@@ -64,7 +65,7 @@ class PedidoController {
       )
       if (itensEsgotados.length > 0) {
         // throw new Error();
-        transaction.rollback()
+        await transaction.rollback()
         return res.json({ itensEsgotados })
       }
 
@@ -172,6 +173,66 @@ class PedidoController {
       attributes: {
         exclude: ['updatedAt', 'createdAt', 'cliente_id', 'administrador_id'],
       },
+    })
+    return res.json(pedidos)
+  }
+
+  async show(req, res) {
+    const { option, usuario_id } = req
+    const { id } = req.params
+    if (parseInt(id, 10) !== usuario_id && option !== 'administrador') {
+      return res.status(403).json({ error: 'Permissao negada' })
+    }
+    const pedidos = await Pedido.findOne({
+      include: [
+        {
+          model: Oferta,
+          as: 'ofertas',
+          through: {
+            attributes: ['quantidade'],
+          },
+          include: [
+            {
+              association: 'produtos',
+              attributes: ['id', 'nome', 'descricao', 'imagem_id'],
+              include: [
+                {
+                  association: 'imagem',
+                  attributes: ['url', 'path'],
+                },
+              ],
+            },
+          ],
+          attributes: {
+            exclude: ['updatedAt', 'createdAt', 'quantidade', 'produto_id'],
+          },
+        },
+        {
+          association: 'clientes',
+          attributes: {
+            exclude: ['updatedAt', 'createdAt', 'password_hash'],
+          },
+          include: [
+            {
+              association: 'enderecos',
+              attributes: {
+                exclude: ['updatedAt', 'createdAt'],
+              },
+            },
+          ],
+        },
+        {
+          association: 'administrador',
+          attributes: {
+            exclude: ['updatedAt', 'createdAt', 'password_hash'],
+          },
+        },
+      ],
+
+      attributes: {
+        exclude: ['updatedAt', 'createdAt', 'cliente_id', 'administrador_id'],
+      },
+      where: { id_cliente: id },
     })
     return res.json(pedidos)
   }

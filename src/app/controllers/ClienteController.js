@@ -221,7 +221,7 @@ class ClienteController {
   async show(req, res) {
     const { option, usuario_id } = req
     const { id } = req.params
-    if (option !== 'administrador' && id !== usuario_id) {
+    if (option !== 'administrador' && parseInt(id, 10) !== usuario_id) {
       return res.status(403).json({ error: 'Permissao negada' })
     }
 
