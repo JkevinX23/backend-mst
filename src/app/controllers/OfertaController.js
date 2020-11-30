@@ -47,13 +47,13 @@ class OfertaController {
 
   async index(req, res) {
     const { option } = req
-
+    const { disponibilidade } = req.query
     const where = {
       status: {
         [Op.not]: null,
       },
     }
-    if (option !== 'administrador') {
+    if (option !== 'administrador' || disponibilidade === 'ativa') {
       where.status = 'ativa'
     }
 
