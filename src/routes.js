@@ -16,6 +16,7 @@ import OfertaController from './app/controllers/OfertaController'
 import PedidoController from './app/controllers/PedidoController'
 import TipoPagamentosController from './app/controllers/TipoPagamentosController'
 import adminAuth from './app/middlewares/adminAuth'
+import TipoFreteController from './app/controllers/TipoFreteController'
 
 const routes = new Router()
 const upload = multer(multerConfig)
@@ -50,6 +51,7 @@ routes.post('/tipo-pagamento', TipoPagamentosController.store)
 routes.post('/categoria', CategoriaController.store)
 routes.post('/validade-oferta', ValidadeOfertaController.store)
 routes.post('/oferta', OfertaController.store)
+routes.post('/frete', TipoFreteController.store)
 
 routes.put('/administrador', AdministradorController.update)
 routes.put('/categoria', CategoriaController.update)
