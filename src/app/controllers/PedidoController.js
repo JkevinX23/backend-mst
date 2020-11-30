@@ -3,8 +3,6 @@ import Pedido from '../models/Pedido'
 import OfertaPedido from '../models/OfertaPedido'
 import Oferta from '../models/Oferta'
 
-const { Op } = require('sequelize')
-
 class PedidoController {
   async store(req, res) {
     const schema = Yup.object().shape({
@@ -27,13 +25,11 @@ class PedidoController {
           value === 'cancelado' ||
           !value,
       ),
-      valor_frete: Yup.number().required(),
+      tipo_frete_id: Yup.number().required(),
     })
 
     if (!(await schema.isValid(req.body))) {
       return res.status(400).json({ error: 'Validation fails' })
-      // objPedido.status = status
-      // objPedido.cliente_id = cliente_id
     }
 
     const { option, usuario_id } = req
@@ -235,6 +231,94 @@ class PedidoController {
       where: { id_cliente: id },
     })
     return res.json(pedidos)
+  }
+
+  async update(req, res) {
+    const { option, usuario_id } = req
+
+    /*
+            @To Do
+
+    Para option igual a 'Cliente', Faltam validações
+
+    */
+    if (option === 'administrador') {
+      const schema = Yup.object().shape({
+        pedido_id: Yup.number().integer().positive().required(),
+        ofertas: Yup.array().of(
+          Yup.object().shape({
+            oferta_id: Yup.number(),
+            quantidade: Yup.number().positive().integer(),
+          }),
+        ),
+        cliente_id: Yup.number().integer().positive(),
+        tipo_pagamento_id: Yup.number().integer().positive(),
+        status: Yup.string().test(
+          'Teste-Status',
+          'Status deve ser aberto, entregue, cancelado',
+          value =>
+            value === 'aberto' ||
+            value === 'entregue' ||
+            value === 'cancelado' ||
+            !value,
+        ),
+        tipo_frete_id: Yup.number().integer().positive(),
+      })
+
+      if (!(await schema.isValid(req.body))) {
+        return res.status(400).json({ error: 'Validation fails' })
+      }
+
+      const { pedido_id } = req.body
+      const pedido = await Pedido.findByPk(pedido_id)
+      let transaction
+      try {
+        transaction = await Pedido.sequelize.transaction()
+        const response = await pedido.update(req.body, { transaction })
+        await transaction.commit()
+        return res.json(response)
+      } catch (err) {
+        if (transaction) await transaction.rollback()
+        console.log(err)
+        return res.status(409).json('Transaction Failed')
+      }
+    }
+
+    if (option === 'cliente') {
+      const schema = Yup.object().shape({
+        pedido_id: Yup.number().integer().positive().required(),
+        ofertas: Yup.array().of(
+          Yup.object().shape({
+            oferta_id: Yup.number(),
+            quantidade: Yup.number().positive().integer(),
+          }),
+        ),
+        tipo_pagamento_id: Yup.number().integer().positive(),
+        tipo_frete_id: Yup.number().integer().positive(),
+      })
+
+      if (!(await schema.isValid(req.body))) {
+        return res.status(400).json({ error: 'Validation fails' })
+      }
+
+      const { pedido_id } = req.body
+      const pedido = await Pedido.findByPk(pedido_id)
+      if (pedido.cliente_id !== usuario_id) {
+        return res.status(402).json({ error: 'Permissão negada' })
+      }
+      let transaction
+      try {
+        transaction = await Pedido.sequelize.transaction()
+        const response = await pedido.update(req.body, { transaction })
+        await transaction.commit()
+        return res.json(response)
+      } catch (err) {
+        if (transaction) await transaction.rollback()
+        console.log(err)
+        return res.status(409).json('Transaction Failed')
+      }
+    }
+    return res.status(401).json({ error: 'Invalid option' })
   }
 }
 
