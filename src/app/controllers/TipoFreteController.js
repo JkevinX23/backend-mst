@@ -1,7 +1,7 @@
 import * as Yup from 'yup'
 import TipoFrete from '../models/TipoFrete'
 
-class ClienteController {
+class TipoFreteController {
   async store(req, res) {
     const schema = Yup.object().shape({
       nome: Yup.string().required(),
@@ -30,4 +30,4 @@ class ClienteController {
   }
 }
 
-export default new ClienteController()
+export default new TipoFreteController()
