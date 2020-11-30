@@ -60,5 +60,6 @@ routes.get('/cliente/id/:id', ClienteController.show)
 routes.get('/administrador/id/:id', AdministradorController.show)
 routes.get('/produto/id/:id', ProdutosController.show)
 routes.get('/pedido/id/:id', PedidoController.index)
+routes.get('/validade-oferta/id/:id', ValidadeOfertaController.show)
 
 export default routes

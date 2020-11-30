@@ -1,6 +1,9 @@
 import * as Yup from 'yup'
 import { parseISO, isBefore } from 'date-fns'
+import { Op } from 'sequelize'
 import ValidadeOferta from '../models/ValidadeOferta'
+import Oferta from '../models/Oferta'
+import Categoria from '../models/Categoria'
 
 class ValidadeOfertaController {
   async store(req, res) {
@@ -49,8 +52,29 @@ class ValidadeOfertaController {
     if (option !== 'administrador') {
       return res.status(403).json({ error: 'Permissao negada' })
     }
+    const { status } = req.query
+    const { pagina = 1, limite = 20 } = req.query
+
+    const where = {
+      status: {
+        [Op.not]: null,
+      },
+    }
+    if (status === 'ativa') {
+      where.status = 'ativa'
+    }
+    if (status === 'inativa') {
+      where.status = 'inativa'
+    }
+
+
     const validadeOferta = await ValidadeOferta.findAll({
-      where: { status: 'ativa' },
+     limit: parseInt(limite, 10),
+     offset: (pagina - 1) * limite,
+     where,
+      order: [
+        ['createdAt', 'DESC'],
+      ]
     })
     return res.json(validadeOferta)
   }
@@ -123,6 +147,54 @@ class ValidadeOfertaController {
       if (transaction) await transaction.rollback()
       return res.status(409).json({ error: 'Transaction failed' })
     }
+  }
+
+  async show(req, res){
+    const { option } = req
+    const { id } = req.params
+
+    if (option !== 'administrador') {
+      return res.status(403).json({ error: 'Permissao negada' })
+    }
+
+    const ofertas = await Oferta.findAll({
+      include: [
+        {
+          association: 'produtos',
+          attributes: {
+            exclude: ['createdAt', 'updatedAt', 'imagem_id'],
+          },
+          include: [
+            {
+              association: 'imagem',
+              attributes: ['url', 'path'],
+            },
+            {
+              model: Categoria,
+              as: 'categorias',
+              through: {
+                attributes: [],
+              },
+              attributes: {
+                exclude: ['updatedAt', 'createdAt', 'isvalid'],
+              },
+            },
+          ],
+        },
+        {
+          association: 'validade',
+          attributes: {
+            exclude: ['createdAt', 'updatedAt'],
+          },
+          where: {id},
+          required: true,
+        },
+      ],
+      attributes: {
+        exclude: ['createdAt', 'updatedAt', 'validade_oferta_id', 'produto_id'],
+      },
+    })
+    return res.json(ofertas)
   }
 }
 

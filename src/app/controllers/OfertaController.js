@@ -48,6 +48,7 @@ class OfertaController {
   async index(req, res) {
     const { option } = req
     const { disponibilidade } = req.query
+    const { pagina = 1, limite = 20 } = req.query
     const where = {
       status: {
         [Op.not]: null,
@@ -58,6 +59,8 @@ class OfertaController {
     }
 
     const ofertas = await Oferta.findAll({
+      limit: parseInt(limite, 10),
+      offset: (pagina - 1) * limite,
       include: [
         {
           association: 'produtos',
