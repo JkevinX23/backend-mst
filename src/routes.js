@@ -17,6 +17,7 @@ import PedidoController from './app/controllers/PedidoController'
 import TipoPagamentosController from './app/controllers/TipoPagamentosController'
 import adminAuth from './app/middlewares/adminAuth'
 import TipoFreteController from './app/controllers/TipoFreteController'
+import EsqueciASenhaController from './app/controllers/EsqueciSenhaController'
 
 const routes = new Router()
 const upload = multer(multerConfig)
@@ -25,6 +26,9 @@ routes.post('/administrador', AdministradorController.store)
 routes.post('/tipo-usuario', TipoUsuariosController.store)
 routes.post('/sessao', SessaoController.store)
 routes.post('/cliente', ClienteController.store)
+
+routes.post('/forget', EsqueciASenhaController.forget)
+routes.post('/reset', EsqueciASenhaController.reset)
 
 routes.get('/categoria', CategoriaController.index)
 routes.get('/tipos', TipoUsuariosController.index)

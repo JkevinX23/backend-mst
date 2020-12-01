@@ -45,7 +45,7 @@ class ForgetPassword {
     const { id } = cliente
 
     const token = jwt.sign({ id, type: 0 }, authConfig.secret, {
-      expiresIn: authConfig.forgetExpiresIn,
+      expiresIn: 3600,
     })
 
     const link = process.env.EMAIL_SITE + token
