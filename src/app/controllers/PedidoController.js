@@ -95,7 +95,7 @@ class PedidoController {
         }
         objPedido.cliente_id = cliente_id
       } else {
-        objPedido.client_id = usuario_id
+        objPedido.cliente_id = usuario_id
       }
 
       const pedido = await Pedido.create(objPedido, { transaction })
