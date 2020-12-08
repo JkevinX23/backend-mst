@@ -40,6 +40,7 @@ routes.post('/reset', EsqueciASenhaController.reset)
 routes.get('/categoria', CategoriaController.index)
 routes.get('/tipos', TipoUsuariosController.index)
 routes.get('/oferta', storeAvailability, OfertaController.index)
+routes.get('/tipo-pagamento', TipoPagamentosController.index)
 routes.post(
   '/imagens',
   [adminAuth, upload.single('file')],
@@ -53,7 +54,6 @@ routes.get('/categoria-admin', CategoriaController.index)
 routes.get('/administrador', AdministradorController.index)
 routes.get('/validade-oferta', ValidadeOfertaController.index)
 routes.get('/oferta-admin', OfertaController.index)
-routes.get('/tipo-pagamento', TipoPagamentosController.index)
 routes.get('/pedido', PedidoController.index)
 
 routes.post('/produto', ProdutosController.store)
