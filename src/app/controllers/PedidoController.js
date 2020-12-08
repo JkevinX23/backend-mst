@@ -167,7 +167,7 @@ class PedidoController {
       ],
 
       attributes: {
-        exclude: ['updatedAt', 'createdAt', 'cliente_id', 'administrador_id'],
+        exclude: ['updatedAt', 'cliente_id', 'administrador_id'],
       },
     })
     return res.json(pedidos)
@@ -226,7 +226,7 @@ class PedidoController {
       ],
 
       attributes: {
-        exclude: ['updatedAt', 'createdAt', 'cliente_id', 'administrador_id'],
+        exclude: ['updatedAt', 'cliente_id', 'administrador_id'],
       },
       where: { id_cliente: id },
     })
