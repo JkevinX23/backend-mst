@@ -5,6 +5,7 @@ class TipoFrete extends Model {
     super.init(
       {
         nome: Sequelize.STRING,
+        valor_frete: Sequelize.FLOAT,
       },
       {
         sequelize,

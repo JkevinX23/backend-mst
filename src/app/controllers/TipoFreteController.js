@@ -10,18 +10,20 @@ class TipoFreteController {
   async store(req, res) {
     const schema = Yup.object().shape({
       nome: Yup.string().required(),
+      valor_frete: Yup.number().required(),
     })
 
     if (!(await schema.isValid(req.body))) {
       return res.status(400).json({ error: 'Validation fails' })
     }
 
-    const { nome } = req.body
+    const { nome, valor_frete } = req.body
     let transaction
     try {
       transaction = await TipoFrete.sequelize.transaction()
       const frete = {
         nome,
+        valor_frete,
       }
 
       const end = await TipoFrete.create(frete, { transaction })
