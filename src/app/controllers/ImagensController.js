@@ -7,9 +7,9 @@ class ImagensController {
       fileCompress
         .compressImage(req.file, 300)
         .then(async newPath => {
-          const { originalname: name } = req.file
+          const { originalname: nome } = req.file
           const { filename } = newPath
-          const file = await Imagens.create({ name, path: filename })
+          const file = await Imagens.create({ nome, path: filename })
           return res.json(file)
         })
         .catch(err => console.log(err))
