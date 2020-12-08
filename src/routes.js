@@ -16,11 +16,19 @@ import OfertaController from './app/controllers/OfertaController'
 import PedidoController from './app/controllers/PedidoController'
 import TipoPagamentosController from './app/controllers/TipoPagamentosController'
 import adminAuth from './app/middlewares/adminAuth'
+import storeAvailability from './app/middlewares/storeAvailability'
 import TipoFreteController from './app/controllers/TipoFreteController'
 import EsqueciASenhaController from './app/controllers/EsqueciSenhaController'
+import RelatorioGeralController from './app/controllers/RelatorioGeralController'
+import RelatorioClienteController from './app/controllers/RelatorioClienteController'
+import TipoFrete from './app/models/TipoFrete'
 
 const routes = new Router()
 const upload = multer(multerConfig)
+
+routes.get('/relatorio-geral', RelatorioGeralController.show)
+routes.get('/relatorio-individual', RelatorioClienteController.show)
+routes.get('/frete', TipoFreteController.index)
 
 routes.post('/administrador', AdministradorController.store)
 routes.post('/tipo-usuario', TipoUsuariosController.store)
@@ -32,7 +40,7 @@ routes.post('/reset', EsqueciASenhaController.reset)
 
 routes.get('/categoria', CategoriaController.index)
 routes.get('/tipos', TipoUsuariosController.index)
-routes.get('/oferta', OfertaController.index)
+routes.get('/oferta', storeAvailability, OfertaController.index)
 routes.post(
   '/imagens',
   [adminAuth, upload.single('file')],

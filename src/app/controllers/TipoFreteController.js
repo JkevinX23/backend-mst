@@ -2,6 +2,11 @@ import * as Yup from 'yup'
 import TipoFrete from '../models/TipoFrete'
 
 class TipoFreteController {
+  async index(req, res) {
+    const tf = await TipoFrete.findAll()
+    return res.json(tf)
+  }
+
   async store(req, res) {
     const schema = Yup.object().shape({
       nome: Yup.string().required(),
