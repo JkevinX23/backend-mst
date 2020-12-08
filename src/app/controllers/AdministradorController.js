@@ -33,7 +33,7 @@ class AdminController {
         password,
       }
 
-      const admin = await Administrador.create(client, { transaction })
+      const admin = await Adminastrador.create(client, { transaction })
 
       let tipo = await TipoUsuarios.findOne({
         where: { tipo: 'administrador' },
