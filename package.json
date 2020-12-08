@@ -10,11 +10,13 @@
     "build": "sucrase ./src -d ./dist --transforms imports"
   },
   "dependencies": {
+    "@sentry/node": "^5.29.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "date-fns": "^2.16.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "express-async-errors": "^3.1.1",
     "express-handlebars": "^5.2.0",
     "jsonwebtoken": "^8.5.1",
     "multer": "^1.4.2",
@@ -24,6 +26,7 @@
     "nodemailer-express-handlebars": "^4.0.0",
     "sequelize": "^6.3.5",
     "sharp": "^0.26.2",
+    "youch": "^2.1.1",
     "yup": "^0.29.3"
   },
   "devDependencies": {
