@@ -1,15 +1,18 @@
 import 'dotenv/config'
+import cron from 'node-cron'
 import express from 'express'
 import path from 'path'
 import cors from 'cors'
 import routes from './routes'
 import './database'
+import ExpirarOfertas from './app/jobs/ExpirarOfertas'
 
 class App {
   constructor() {
     this.server = express()
     this.middlewares()
     this.routes()
+    this.test()
   }
 
   middlewares() {
@@ -23,6 +26,10 @@ class App {
 
   routes() {
     this.server.use(routes)
+  }
+
+  test() {
+    cron.schedule('* * * * *', () => ExpirarOfertas.expirar())
   }
 }
 
