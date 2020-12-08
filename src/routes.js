@@ -19,15 +19,14 @@ import adminAuth from './app/middlewares/adminAuth'
 import storeAvailability from './app/middlewares/storeAvailability'
 import TipoFreteController from './app/controllers/TipoFreteController'
 import EsqueciASenhaController from './app/controllers/EsqueciSenhaController'
-import RelatorioGeralController from './app/controllers/RelatorioGeralController'
-import RelatorioClienteController from './app/controllers/RelatorioClienteController'
-import TipoFrete from './app/models/TipoFrete'
+// import RelatorioGeralController from './app/controllers/RelatorioGeralController'
+// import RelatorioClienteController from './app/controllers/RelatorioClienteController'
 
 const routes = new Router()
 const upload = multer(multerConfig)
 
-routes.get('/relatorio-geral', RelatorioGeralController.show)
-routes.get('/relatorio-individual', RelatorioClienteController.show)
+// routes.get('/relatorio-geral', RelatorioGeralController.show)
+// routes.get('/relatorio-individual', RelatorioClienteController.show)
 routes.get('/frete', TipoFreteController.index)
 
 routes.post('/administrador', AdministradorController.store)
