@@ -41,6 +41,9 @@ routes.get('/categoria', CategoriaController.index)
 routes.get('/tipos', TipoUsuariosController.index)
 routes.get('/oferta', storeAvailability, OfertaController.index)
 routes.get('/tipo-pagamento', TipoPagamentosController.index)
+
+routes.get('/oferta/id/:id', OfertaController.show)
+
 routes.post(
   '/imagens',
   [adminAuth, upload.single('file')],

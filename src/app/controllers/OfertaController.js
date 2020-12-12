@@ -114,5 +114,53 @@ class OfertaController {
 
     return res.json(ofertas)
   }
+
+  async show(req, res) {
+    const { id } = req.params
+    const where = {
+      id,
+    }
+    const oferta = await Oferta.findOne({
+      include: [
+        {
+          association: 'produtos',
+          attributes: {
+            exclude: ['createdAt', 'updatedAt', 'imagem_id'],
+          },
+          include: [
+            {
+              association: 'imagem',
+              attributes: ['url', 'path'],
+            },
+            {
+              model: Categoria,
+              as: 'categorias',
+              through: {
+                attributes: [],
+              },
+              attributes: {
+                exclude: ['updatedAt', 'createdAt', 'isvalid'],
+              },
+            },
+          ],
+        },
+        {
+          association: 'validade',
+          attributes: {
+            exclude: ['createdAt', 'updatedAt'],
+          },
+          where,
+          required: true,
+        },
+      ],
+      attributes: {
+        exclude: ['createdAt', 'updatedAt', 'validade_oferta_id', 'produto_id'],
+      },
+    })
+    if (!oferta) {
+      return res.json({ error: 'Oferta não existe' })
+    }
+    return res.json(oferta)
+  }
 }
 export default new OfertaController()
