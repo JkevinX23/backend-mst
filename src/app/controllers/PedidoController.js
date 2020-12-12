@@ -1,7 +1,11 @@
+/* eslint-disable no-await-in-loop */
+/* eslint "no-restricted-syntax": "off" */
 import * as Yup from 'yup'
 import Pedido from '../models/Pedido'
 import OfertaPedido from '../models/OfertaPedido'
 import Oferta from '../models/Oferta'
+
+const { Op } = require('sequelize')
 
 class PedidoController {
   async store(req, res) {
@@ -106,12 +110,12 @@ class PedidoController {
         pedido_id: pedido.id,
       }))
 
-      const oferta_pedido = await OfertaPedido.bulkCreate(ofertaPedidos, {
+      await OfertaPedido.bulkCreate(ofertaPedidos, {
         transaction,
       })
       await transaction.commit()
 
-      return res.json(oferta_pedido)
+      return res.json(pedido)
     } catch (error) {
       console.log(error)
       if (transaction) await transaction.rollback()
@@ -120,7 +124,22 @@ class PedidoController {
   }
 
   async index(req, res) {
+    const { option, usuario_id } = req
+
+    const where = {
+      cliente_id: {
+        [Op.not]: null,
+      },
+    }
+    if (option !== 'administrador') {
+      where.cliente_id = usuario_id
+    }
+    const { pagina = 1, limite = 20 } = req.query
+
     const pedidos = await Pedido.findAll({
+      limit: parseInt(limite, 10),
+      offset: (pagina - 1) * limite,
+      where,
       include: [
         {
           model: Oferta,
@@ -164,22 +183,55 @@ class PedidoController {
             exclude: ['updatedAt', 'createdAt', 'password_hash'],
           },
         },
+
+        {
+          association: 'pagamento',
+          attributes: {
+            exclude: ['updatedAt', 'createdAt'],
+          },
+        },
+
+        {
+          association: 'frete',
+          attributes: {
+            exclude: ['updatedAt', 'createdAt'],
+          },
+        },
       ],
 
       attributes: {
         exclude: ['updatedAt', 'cliente_id', 'administrador_id'],
       },
+    }).then(function (result) {
+      return JSON.parse(JSON.stringify(result))
     })
+    pedidos.forEach(element => {
+      let total = 0.0
+      element.ofertas.forEach(ele2 => {
+        total += parseFloat(ele2.valor_unitario, 10)
+      })
+      total += element.frete.valor_frete
+      element.total = total
+    })
+
     return res.json(pedidos)
   }
 
   async show(req, res) {
     const { option, usuario_id } = req
-    const { id } = req.params
-    if (parseInt(id, 10) !== usuario_id && option !== 'administrador') {
+    const { pedido_id, cliente_id } = req.params
+
+    if (parseInt(cliente_id, 10) !== usuario_id && option !== 'administrador') {
       return res.status(403).json({ error: 'Permissao negada' })
     }
-    const pedidos = await Pedido.findOne({
+
+    const where = {
+      cliente_id,
+      id: pedido_id,
+    }
+
+    const pedido = await Pedido.findOne({
+      where,
       include: [
         {
           model: Oferta,
@@ -223,14 +275,38 @@ class PedidoController {
             exclude: ['updatedAt', 'createdAt', 'password_hash'],
           },
         },
+
+        {
+          association: 'frete',
+          attributes: {
+            exclude: ['updatedAt', 'createdAt'],
+          },
+        },
+
+        {
+          association: 'pagamento',
+          attributes: {
+            exclude: ['updatedAt', 'createdAt'],
+          },
+        },
       ],
 
       attributes: {
         exclude: ['updatedAt', 'cliente_id', 'administrador_id'],
       },
-      where: { id_cliente: id },
+    }).then(function (result) {
+      return JSON.parse(JSON.stringify(result))
     })
-    return res.json(pedidos)
+
+    if (!pedido) return res.json({ error: 'Pedido não encontrado' })
+    let total = 0.0
+    pedido.ofertas.forEach(element => {
+      total += parseFloat(element.valor_unitario, 10)
+    })
+    total += pedido.frete.valor_frete
+    pedido.total = total
+
+    return res.json({ pedido })
   }
 
   async update(req, res) {

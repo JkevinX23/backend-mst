@@ -35,10 +35,12 @@ class Pedido extends Model {
 
     this.belongsTo(models.TipoPagamentos, {
       foreignKey: 'tipo_pagamento_id',
+      as: 'pagamento',
     })
 
     this.belongsTo(models.TipoFrete, {
       foreignKey: 'tipo_frete_id',
+      as: 'frete',
     })
   }
 }
