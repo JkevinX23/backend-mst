@@ -71,6 +71,7 @@ routes.put('/administrador', AdministradorController.update)
 routes.put('/categoria', CategoriaController.update)
 routes.put('/cliente', ClienteController.update)
 routes.put('/validade-oferta', ValidadeOfertaController.update)
+routes.put('/produto', ProdutosController.update)
 
 routes.get('/cliente/id/:id', ClienteController.show)
 routes.get('/administrador/id/:id', AdministradorController.show)
@@ -80,5 +81,7 @@ routes.get(
   PedidoController.show,
 )
 routes.get('/validade-oferta/id/:id', ValidadeOfertaController.show)
+
+routes.delete('/produto/:id', ProdutosController.delete)
 
 export default routes
