@@ -162,5 +162,43 @@ class OfertaController {
     }
     return res.json(oferta)
   }
+
+  async update(req, res) {
+    const schema = Yup.object().shape({
+      id: Yup.number().integer().positive(),
+      quantidade: Yup.number().integer().positive(),
+      valor_unitario: Yup.number().positive(),
+      validade_oferta_id: Yup.number().integer().positive(),
+    })
+
+    if (!(await schema.isValid(req.body))) {
+      return res.status(400).json({ error: 'Validation fails' })
+    }
+
+    const { id, quantidade, valor_unitario, validade_oferta_id } = req.body
+
+    let transaction
+    let resultado
+    try {
+      transaction = await Oferta.sequelize.transaction()
+      resultado = await Oferta.update(
+        {
+          quantidade,
+          valor_unitario,
+          validade_oferta_id,
+        },
+        { where: { id } },
+        { transaction },
+      ).then(function f() {
+        return Oferta.findByPk(id, { transaction })
+      })
+      await transaction.commit()
+      return res.json(resultado)
+    } catch (err) {
+      console.log(err)
+      if (transaction) await transaction.rollback()
+      return res.status(409).json({ error: 'Transaction failed' })
+    }
+  }
 }
 export default new OfertaController()

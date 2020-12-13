@@ -72,6 +72,7 @@ routes.put('/categoria', CategoriaController.update)
 routes.put('/cliente', ClienteController.update)
 routes.put('/validade-oferta', ValidadeOfertaController.update)
 routes.put('/produto', ProdutosController.update)
+routes.put('/oferta', OfertaController.update)
 
 routes.get('/cliente/id/:id', ClienteController.show)
 routes.get('/administrador/id/:id', AdministradorController.show)
