@@ -6,6 +6,7 @@ import TipoUsuarios from '../models/TipoUsuarios'
 
 class AdminController {
   async store(req, res) {
+    const teste = 0
     const schema = Yup.object().shape({
       nome: Yup.string().required(),
       email: Yup.string().email().required(),
