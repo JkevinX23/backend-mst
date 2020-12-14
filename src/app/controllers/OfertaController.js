@@ -114,5 +114,91 @@ class OfertaController {
 
     return res.json(ofertas)
   }
+
+  async show(req, res) {
+    const { id } = req.params
+    const where = {
+      id,
+    }
+    const oferta = await Oferta.findOne({
+      include: [
+        {
+          association: 'produtos',
+          attributes: {
+            exclude: ['createdAt', 'updatedAt', 'imagem_id'],
+          },
+          include: [
+            {
+              association: 'imagem',
+              attributes: ['url', 'path'],
+            },
+            {
+              model: Categoria,
+              as: 'categorias',
+              through: {
+                attributes: [],
+              },
+              attributes: {
+                exclude: ['updatedAt', 'createdAt', 'isvalid'],
+              },
+            },
+          ],
+        },
+        {
+          association: 'validade',
+          attributes: {
+            exclude: ['createdAt', 'updatedAt'],
+          },
+          where,
+          required: true,
+        },
+      ],
+      attributes: {
+        exclude: ['createdAt', 'updatedAt', 'validade_oferta_id', 'produto_id'],
+      },
+    })
+    if (!oferta) {
+      return res.json({ error: 'Oferta não existe' })
+    }
+    return res.json(oferta)
+  }
+
+  async update(req, res) {
+    const schema = Yup.object().shape({
+      id: Yup.number().integer().positive(),
+      quantidade: Yup.number().integer().positive(),
+      valor_unitario: Yup.number().positive(),
+      validade_oferta_id: Yup.number().integer().positive(),
+    })
+
+    if (!(await schema.isValid(req.body))) {
+      return res.status(400).json({ error: 'Validation fails' })
+    }
+
+    const { id, quantidade, valor_unitario, validade_oferta_id } = req.body
+
+    let transaction
+    let resultado
+    try {
+      transaction = await Oferta.sequelize.transaction()
+      resultado = await Oferta.update(
+        {
+          quantidade,
+          valor_unitario,
+          validade_oferta_id,
+        },
+        { where: { id } },
+        { transaction },
+      ).then(function f() {
+        return Oferta.findByPk(id, { transaction })
+      })
+      await transaction.commit()
+      return res.json(resultado)
+    } catch (err) {
+      console.log(err)
+      if (transaction) await transaction.rollback()
+      return res.status(409).json({ error: 'Transaction failed' })
+    }
+  }
 }
 export default new OfertaController()

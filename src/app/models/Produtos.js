@@ -6,6 +6,7 @@ class Produtos extends Model {
       {
         nome: Sequelize.STRING,
         descricao: Sequelize.STRING,
+        itemAtivo: Sequelize.BOOLEAN,
       },
       {
         sequelize,

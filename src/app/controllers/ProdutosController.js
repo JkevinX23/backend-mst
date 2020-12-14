@@ -1,6 +1,9 @@
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-restricted-syntax */
 import * as Yup from 'yup'
 import Categoria from '../models/Categoria'
 import Produtos from '../models/Produtos'
+import CategoriaProduto from '../models/CategoriaProduto'
 
 class ProdutosController {
   async store(req, res) {
@@ -11,9 +14,9 @@ class ProdutosController {
 
     const schema = Yup.object().shape({
       nome: Yup.string().required(),
-      descricao: Yup.string().required(),
-      imagem_id: Yup.number().required(),
-      categorias: Yup.array().required(),
+      descricao: Yup.string(),
+      imagem_id: Yup.number(),
+      categorias: Yup.array(),
     })
 
     if (!(await schema.isValid(req.body))) {
@@ -75,6 +78,7 @@ class ProdutosController {
       attributes: {
         exclude: ['createdAt', 'updatedAt', 'imagem_id'],
       },
+      where: { itemAtivo: true },
     })
     return res.json({ produtos })
   }
@@ -89,6 +93,7 @@ class ProdutosController {
     const produtos = await Produtos.findOne({
       where: {
         id,
+        itemAtivo: true,
       },
       include: [
         {
@@ -116,6 +121,73 @@ class ProdutosController {
       return res.json({ error: 'not found' })
     }
     return res.json(produtos)
+  }
+
+  async update(req, res) {
+    const schema = Yup.object().shape({
+      nome: Yup.string(),
+      descricao: Yup.string(),
+      imagem_id: Yup.number(),
+      categorias: Yup.array(),
+    })
+
+    if (!(await schema.isValid(req.body))) {
+      return res.status(400).json({ error: 'Validation fails' })
+    }
+    const { id, nome, descricao, imagem_id, categorias } = req.body
+
+    let resultado
+    let transaction
+
+    try {
+      transaction = await Produtos.sequelize.transaction()
+      resultado = await Produtos.update(
+        {
+          nome,
+          descricao,
+          imagem_id,
+        },
+        { where: { id } },
+        { transaction },
+      ).then(function f() {
+        return Produtos.findByPk(id, { transaction })
+      })
+      if (categorias) {
+        await CategoriaProduto.destroy(
+          {
+            where: {
+              produto_id: id,
+            },
+          },
+          { transaction },
+        )
+        await resultado.setCategorias(categorias, { transaction })
+      }
+
+      await transaction.commit()
+    } catch (err) {
+      await transaction.rollback()
+      return res.json({ error: 'falha' })
+    }
+
+    return res.json({ id })
+  }
+
+  async delete(req, res) {
+    const { option } = req
+    const { id } = req.params
+    if (option !== 'administrador') {
+      return res.status(403).json({ error: 'Permissao negada' })
+    }
+
+    const itemAtivo = false
+
+    try {
+      await Produtos.update({ itemAtivo }, { where: { id } })
+    } catch (err) {
+      return res.json({ error: 'falha' })
+    }
+    return res.json({ sucess: `deletado item id ${id}` })
   }
 }
 

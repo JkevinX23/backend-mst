@@ -41,6 +41,9 @@ routes.get('/categoria', CategoriaController.index)
 routes.get('/tipos', TipoUsuariosController.index)
 routes.get('/oferta', storeAvailability, OfertaController.index)
 routes.get('/tipo-pagamento', TipoPagamentosController.index)
+
+routes.get('/oferta/id/:id', OfertaController.show)
+
 routes.post(
   '/imagens',
   [adminAuth, upload.single('file')],
@@ -68,11 +71,18 @@ routes.put('/administrador', AdministradorController.update)
 routes.put('/categoria', CategoriaController.update)
 routes.put('/cliente', ClienteController.update)
 routes.put('/validade-oferta', ValidadeOfertaController.update)
+routes.put('/produto', ProdutosController.update)
+routes.put('/oferta', OfertaController.update)
 
 routes.get('/cliente/id/:id', ClienteController.show)
 routes.get('/administrador/id/:id', AdministradorController.show)
 routes.get('/produto/id/:id', ProdutosController.show)
-routes.get('/pedido/id/:id', PedidoController.index)
+routes.get(
+  '/pedido/cliente_id/:cliente_id/pedido_id/:pedido_id',
+  PedidoController.show,
+)
 routes.get('/validade-oferta/id/:id', ValidadeOfertaController.show)
+
+routes.delete('/produto/:id', ProdutosController.delete)
 
 export default routes
