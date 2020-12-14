@@ -118,3 +118,5 @@ dist
 # data images
 data/uploads/*
 !data/uploads/.gitkeep
+
+build
