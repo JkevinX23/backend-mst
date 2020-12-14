@@ -189,8 +189,9 @@ class OfertaController {
         },
         { where: { id } },
         { transaction },
-      ).then(function f() {
-        return Oferta.findByPk(id, { transaction })
+      ).then(async function f() {
+        const off = await Oferta.findByPk(id, { transaction })
+        return off
       })
       await transaction.commit()
       return res.json(resultado)
