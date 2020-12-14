@@ -12,7 +12,7 @@ class AdminController {
       password: Yup.string().required().min(6),
     })
 
-    if (!(await schema.isValid(req.body))) {
+    if (!(await schema.isVasdalid(req.body))) {
       return res.status(400).json({ error: 'Validation fails' })
     }
 
@@ -33,7 +33,7 @@ class AdminController {
         password,
       }
 
-      const admin = await Adminastrador.create(client, { transaction })
+      const admin = await Administrador.create(client, { transaction })
 
       let tipo = await TipoUsuarios.findOne({
         where: { tipo: 'administrador' },
