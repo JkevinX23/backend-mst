@@ -6,14 +6,13 @@ import TipoUsuarios from '../models/TipoUsuarios'
 
 class AdminController {
   async store(req, res) {
-    const teste = 0
     const schema = Yup.object().shape({
       nome: Yup.string().required(),
       email: Yup.string().email().required(),
       password: Yup.string().required().min(6),
     })
 
-    if (!(await schema.isVasdalid(req.body))) {
+    if (!(await schema.isValid(req.body))) {
       return res.status(400).json({ error: 'Validation fails' })
     }
 
