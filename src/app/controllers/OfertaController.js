@@ -121,6 +121,8 @@ class OfertaController {
       id,
     }
     const oferta = await Oferta.findOne({
+      where,
+      required: true,
       include: [
         {
           association: 'produtos',
@@ -149,8 +151,6 @@ class OfertaController {
           attributes: {
             exclude: ['createdAt', 'updatedAt'],
           },
-          where,
-          required: true,
         },
       ],
       attributes: {
