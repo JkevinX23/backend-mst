@@ -166,7 +166,7 @@ class OfertaController {
   async update(req, res) {
     const schema = Yup.object().shape({
       id: Yup.number().integer().positive(),
-      quantidade: Yup.number().integer().positive(),
+      quantidade: Yup.number(),
       valor_unitario: Yup.number().positive(),
       validade_oferta_id: Yup.number().integer().positive(),
     })
