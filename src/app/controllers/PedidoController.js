@@ -52,11 +52,11 @@ class PedidoController {
 
       for (const oferta of ofertas) {
         arrayOfertas.push(
-          await Oferta.findByPk(
-            oferta.id,
-            { plain: true, raw: true },
-            { transaction },
-          ),
+          await Oferta.findByPk(oferta.id, {
+            plain: true,
+            raw: true,
+            transaction,
+          }),
         )
       }
 
