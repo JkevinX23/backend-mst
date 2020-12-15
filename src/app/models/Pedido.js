@@ -5,7 +5,6 @@ class Pedido extends Model {
     super.init(
       {
         status: Sequelize.STRING,
-        valor_frete: Sequelize.FLOAT,
       },
       {
         sequelize,
