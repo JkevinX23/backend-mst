@@ -19,6 +19,7 @@ import adminAuth from './app/middlewares/adminAuth'
 import storeAvailability from './app/middlewares/storeAvailability'
 import TipoFreteController from './app/controllers/TipoFreteController'
 import EsqueciASenhaController from './app/controllers/EsqueciSenhaController'
+import ContadorEstatisticaController from './app/controllers/ContadorEstatisticasController'
 // import RelatorioGeralController from './app/controllers/RelatorioGeralController'
 // import RelatorioClienteController from './app/controllers/RelatorioClienteController'
 
@@ -58,6 +59,8 @@ routes.get('/administrador', AdministradorController.index)
 routes.get('/validade-oferta', ValidadeOfertaController.index)
 routes.get('/oferta-admin', OfertaController.index)
 routes.get('/pedido', PedidoController.index)
+
+routes.get('/estatisticas', ContadorEstatisticaController.show)
 
 routes.post('/produto', ProdutosController.store)
 routes.post('/pedido', PedidoController.store)
