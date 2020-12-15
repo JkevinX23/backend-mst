@@ -75,19 +75,12 @@ class PedidoController {
       console.log(arrayOfertas)
 
       for (const off of arrayOfertas) {
-        await Oferta.update(off, { where: { id: off.id } }, transaction)
+        await Oferta.update(off, { where: { id: off.id }, transaction })
       }
 
       const objPedido = {}
-      const {
-        cliente_id,
-        tipo_pagamento_id,
-        tipo_frete_id,
-        status,
-        valor_frete,
-      } = req.body
+      const { cliente_id, tipo_pagamento_id, tipo_frete_id, status } = req.body
       objPedido.tipo_pagamento_id = tipo_pagamento_id
-      objPedido.valor_frete = valor_frete
       objPedido.tipo_frete_id = tipo_frete_id
 
       if (option === 'administrador') {
