@@ -75,7 +75,7 @@ class PedidoController {
       console.log(arrayOfertas)
 
       for (const off of arrayOfertas) {
-        await Oferta.update(off, { where: { id: off.id } }, { transaction })
+        await Oferta.update(off, { where: { id: off.id } }, transaction)
       }
 
       const objPedido = {}
