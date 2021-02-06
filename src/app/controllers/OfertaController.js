@@ -201,5 +201,22 @@ class OfertaController {
       return res.status(409).json({ error: 'Transaction failed' })
     }
   }
+
+  async delete(req, res) {
+    const {id} = req.params
+
+    try{
+      const oferta = await Oferta.findOne({where: parseInt(id,10)})
+      if(!oferta){
+        return res.status(404).json({error: 'oferta inexistente'})
+      }
+      console.log(oferta)
+      await oferta.destroy()
+      return res.json({ok: true})
+    }catch(err){
+      return res.status(500).json({error: 'error'})
+    }
+
+  }
 }
 export default new OfertaController()

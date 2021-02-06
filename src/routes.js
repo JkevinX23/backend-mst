@@ -88,5 +88,6 @@ routes.get('/validade-oferta/id/:id', ValidadeOfertaController.show)
 
 routes.delete('/produto/:id', ProdutosController.delete)
 routes.delete('/categoria/:id', CategoriaController.delete)
+routes.delete('/oferta/:id', OfertaController.delete)
 
 export default routes
