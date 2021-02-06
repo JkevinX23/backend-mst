@@ -91,6 +91,8 @@ class ClienteController {
         { transaction },
       )
       await transaction.commit()
+      delete cliente.dataValues.password_hash
+      delete cliente.dataValues.password
       return res.json(cliente)
     } catch (err) {
       console.log(err)
@@ -209,7 +211,8 @@ class ClienteController {
 
       const resposta = clientResponse
       resposta.enderecos = addressResponse
-
+      delete resposta.password_hash
+      delete resposta.password
       return res.json({ cliente: resposta })
     } catch (error) {
       console.log(error)
