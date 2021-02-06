@@ -9,7 +9,7 @@ export default async function sendMailNoAttachment(
 ) {
   await Mail.sendMail({
     to: `${name} <${email}>`,
-    from: 'kevinmira12@gmail.com',
+    from: process.env.MAIL_FROM,
     subject,
     template,
     context,
