@@ -80,6 +80,25 @@ class CategoriaController {
     const response = await categoria.update(req.body)
     return res.json(response)
   }
+
+  async delete(req, res) {
+    const {id} = req.params
+    console.log(id)
+
+
+    try{
+      const categoria = await Categoria.findOne({where: parseInt(id,10)})
+      if(!categoria){
+        return res.status(404).json({error: 'categoria inexistente'})
+      }
+      console.log(categoria)
+      await categoria.destroy()
+      return res.json({ok: true})
+    }catch(err){
+      return res.status(500).json({error: 'error'})
+    }
+
+  }
 }
 
 export default new CategoriaController()
