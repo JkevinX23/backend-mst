@@ -83,6 +83,11 @@ class AdminController {
   }
 
   async update(req, res) {
+    const { option, usuario_id } = req
+
+    if (option !== 'administrador') {
+      return res.status(403).json({ error: 'Permissao negada' })
+    }
     const schema = Yup.object().shape({
       nome: Yup.string(),
       email: Yup.string().email(),
@@ -98,11 +103,6 @@ class AdminController {
       return res.status(400).json({ error: 'Validation fails' })
     }
 
-    const { option, usuario_id } = req
-
-    if (option !== 'administrador') {
-      return res.status(403).json({ error: 'Permissao negada' })
-    }
     const { email, oldPassword } = req.body
     const administrador = await Administrador.findByPk(usuario_id)
     let alterEmail = false
@@ -164,6 +164,47 @@ class AdminController {
       return res.json({ error: 'not found' })
     }
     return res.json(administrador)
+  }
+
+  async delete(req, res) {
+    const { option } = req
+    if (option !== 'administrador') {
+      return res.status(403).json({ error: 'Permissao negada' })
+    }
+    const schema = Yup.object().shape({
+      id: Yup.number().positive().integer().required(),
+    })
+
+    if (!(await schema.isValid(req.params))) {
+      return res.status(400).json({ error: 'Validation fails' })
+    }
+
+    const { id } = req.params
+    const transaction = await Administrador.sequelize.transaction()
+
+    try {
+      const adm = await Administrador.findOne(
+        { id: parseInt(id, 10) },
+        { transaction },
+      )
+      if (!adm) {
+        return res.json({ error: 'Administrator not found' })
+      }
+
+      const aut = await Autorizacao.findOne(
+        { email: adm.email },
+        { transaction },
+      )
+
+      await aut.destroy()
+      await adm.destroy()
+      await transaction.commit()
+      return res.json({ ok: true })
+    } catch (error) {
+      console.log(error)
+      await transaction.rollback()
+      return res.status(409).json({ error: 'Transaction failed' })
+    }
   }
 }
 
