@@ -6,6 +6,11 @@ import Categoria from '../models/Categoria'
 
 class OfertaController {
   async store(req, res) {
+    const { option } = req
+    if (option !== 'administrador') {
+      return res.status(403).json({ error: 'Permissao negada' })
+    }
+
     const schema = Yup.object().shape({
       produto_id: Yup.number().integer().positive().required(),
       quantidade: Yup.number().integer().positive().required(),
@@ -164,6 +169,10 @@ class OfertaController {
   }
 
   async update(req, res) {
+    const { option } = req
+    if (option !== 'administrador') {
+      return res.status(403).json({ error: 'Permissao negada' })
+    }
     const schema = Yup.object().shape({
       id: Yup.number().integer().positive(),
       quantidade: Yup.number(),
@@ -203,20 +212,22 @@ class OfertaController {
   }
 
   async delete(req, res) {
-    const {id} = req.params
-
-    try{
-      const oferta = await Oferta.findOne({where: parseInt(id,10)})
-      if(!oferta){
-        return res.status(404).json({error: 'oferta inexistente'})
-      }
-      console.log(oferta)
-      await oferta.destroy()
-      return res.json({ok: true})
-    }catch(err){
-      return res.status(500).json({error: 'error'})
+    const { option } = req
+    if (option !== 'administrador') {
+      return res.status(403).json({ error: 'Permissao negada' })
     }
+    const { id } = req.params
 
+    try {
+      const oferta = await Oferta.findOne({ where: parseInt(id, 10) })
+      if (!oferta) {
+        return res.status(404).json({ error: 'oferta inexistente' })
+      }
+      await oferta.destroy()
+      return res.json({ success: `deletado oferta de id${id}` })
+    } catch (err) {
+      return res.status(500).json({ error: 'error' })
+    }
   }
 }
 export default new OfertaController()
