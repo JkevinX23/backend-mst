@@ -67,14 +67,11 @@ class ValidadeOfertaController {
       where.status = 'inativa'
     }
 
-
     const validadeOferta = await ValidadeOferta.findAll({
-     limit: parseInt(limite, 10),
-     offset: (pagina - 1) * limite,
-     where,
-      order: [
-        ['createdAt', 'DESC'],
-      ]
+      limit: parseInt(limite, 10),
+      offset: (pagina - 1) * limite,
+      where,
+      order: [['createdAt', 'DESC']],
     })
     return res.json(validadeOferta)
   }
@@ -149,7 +146,7 @@ class ValidadeOfertaController {
     }
   }
 
-  async show(req, res){
+  async show(req, res) {
     const { option } = req
     const { id } = req.params
 
@@ -186,7 +183,7 @@ class ValidadeOfertaController {
           attributes: {
             exclude: ['createdAt', 'updatedAt'],
           },
-          where: {id},
+          where: { id },
           required: true,
         },
       ],
