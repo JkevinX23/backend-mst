@@ -15,6 +15,7 @@ import TipoPagamento from '../app/models/TipoPagamento'
 import Pedido from '../app/models/Pedido'
 import OfertaPedido from '../app/models/OfertaPedido'
 import TipoFrete from '../app/models/TipoFrete'
+import StatusLoja from '../app/models/StatusLoja'
 
 const models = [
   Administrador,
@@ -32,6 +33,7 @@ const models = [
   Pedido,
   OfertaPedido,
   TipoFrete,
+  StatusLoja,
 ]
 
 class Database {
