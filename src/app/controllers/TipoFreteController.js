@@ -4,10 +4,15 @@ import TipoFrete from '../models/TipoFrete'
 class TipoFreteController {
   async index(req, res) {
     const tf = await TipoFrete.findAll()
-    return res.json(tf)
+    return res.status(200).json(tf)
   }
 
   async store(req, res) {
+    const { option } = req
+    if (option !== 'administrador') {
+      return res.status(403).json({ error: 'Permissao negada' })
+    }
+
     const schema = Yup.object().shape({
       nome: Yup.string().required(),
       valor_frete: Yup.number().required(),
