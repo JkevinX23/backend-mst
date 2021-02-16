@@ -124,6 +124,10 @@ class ProdutosController {
   }
 
   async update(req, res) {
+    const { option } = req
+    if (option !== 'administrador') {
+      return res.status(403).json({ error: 'Permissao negada' })
+    }
     const schema = Yup.object().shape({
       nome: Yup.string(),
       descricao: Yup.string(),
@@ -187,7 +191,7 @@ class ProdutosController {
     } catch (err) {
       return res.json({ error: 'falha' })
     }
-    return res.json({ sucess: `deletado item id ${id}` })
+    return res.json({ success: `deletado produto de id ${id}` })
   }
 }
 
