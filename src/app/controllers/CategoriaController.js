@@ -82,22 +82,22 @@ class CategoriaController {
   }
 
   async delete(req, res) {
-    const {id} = req.params
-    console.log(id)
-
-
-    try{
-      const categoria = await Categoria.findOne({where: parseInt(id,10)})
-      if(!categoria){
-        return res.status(404).json({error: 'categoria inexistente'})
-      }
-      console.log(categoria)
-      await categoria.destroy()
-      return res.json({ok: true})
-    }catch(err){
-      return res.status(500).json({error: 'error'})
+    const { option } = req
+    if (option !== 'administrador') {
+      return res.status(403).json({ error: 'Permissao negada' })
     }
+    const { id } = req.params
 
+    try {
+      const categoria = await Categoria.findOne({ where: parseInt(id, 10) })
+      if (!categoria) {
+        return res.status(404).json({ error: 'categoria inexistente' })
+      }
+      await categoria.destroy()
+      return res.json({ success: `deletado categoria de id ${id}` })
+    } catch (err) {
+      return res.status(500).json({ error: 'error' })
+    }
   }
 }
 
