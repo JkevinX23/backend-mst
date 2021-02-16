@@ -60,6 +60,17 @@ class PedidoController {
         )
       }
 
+      // const arrayOfertas = ofertas.map(async elem => {
+      //   return Oferta.findByPk(elem.id,{
+      //     plain: true,
+      //     raw: true,
+      //     transaction,
+      //   })
+      // })
+
+      // await Promise.all(arrayOfertas)
+      console.log(arrayOfertas)
+
       const itensEsgotados = arrayOfertas.filter(
         (off, index) => off.quantidade < ofertas[index].quantidade,
       )
@@ -201,7 +212,9 @@ class PedidoController {
     pedidos.forEach(element => {
       let total = 0.0
       element.ofertas.forEach(ele2 => {
-        total += parseFloat(ele2.valor_unitario, 10)
+        total +=
+          parseFloat(ele2.valor_unitario, 10) *
+          parseInt(ele2.oferta_pedidos.quantidade, 10)
       })
       total += element.frete.valor_frete
       element.total = total
@@ -294,7 +307,9 @@ class PedidoController {
     if (!pedido) return res.json({ error: 'Pedido não encontrado' })
     let total = 0.0
     pedido.ofertas.forEach(element => {
-      total += parseFloat(element.valor_unitario, 10)
+      total +=
+        parseFloat(element.valor_unitario, 10) *
+        parseInt(element.oferta_pedidos.quantidade, 10)
     })
     total += pedido.frete.valor_frete
     pedido.total = total
@@ -388,6 +403,31 @@ class PedidoController {
       }
     }
     return res.status(401).json({ error: 'Invalid option' })
+  }
+
+  async delete(req, res) {
+    // TODO: cliente cancelar
+    const { option } = req
+    if (option !== 'administrador') {
+      return res.status(403).json({ error: 'Permissao negada' })
+    }
+    const { id } = req.params
+
+    const { usuario_id } = req
+    try {
+      const pedido = await Pedido.findOne({ where: parseInt(id, 10) })
+      if (pedido.cliente_id !== usuario_id && option !== 'administrador') {
+        return res.status(403).json({ error: 'permissao negada' })
+      }
+      if (!pedido) {
+        return res.status(404).json({ error: 'pedido inexistente' })
+      }
+      pedido.status = 'cancelado'
+      await pedido.save()
+      return res.json({ ok: true })
+    } catch (err) {
+      return res.status(500).json({ error: 'error' })
+    }
   }
 }
 
