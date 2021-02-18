@@ -29,6 +29,7 @@ const upload = multer(multerConfig)
 
 // !No auth routes //
 
+routes.get('/status-loja', StatusLojaController.index)
 routes.get('/frete', TipoFreteController.index)
 routes.get('/categoria', CategoriaController.index)
 // routes.get('/tipos', TipoUsuariosController.index)
@@ -58,7 +59,6 @@ routes.get('/administrador', AdministradorController.index) //! checked
 routes.get('/validade-oferta', ValidadeOfertaController.index) //! checked
 routes.get('/oferta-admin', OfertaController.index) //! checked
 routes.get('/pedido', PedidoController.index) //! checked
-routes.get('/status-loja', StatusLojaController.index) //! checked
 
 routes.post('/produto', ProdutosController.store) //! checked
 routes.post('/pedido', PedidoController.store) //! checked
