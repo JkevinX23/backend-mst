@@ -129,6 +129,7 @@ class ProdutosController {
       return res.status(403).json({ error: 'Permissao negada' })
     }
     const schema = Yup.object().shape({
+      id: Yup.number().integer().positive(),
       nome: Yup.string(),
       descricao: Yup.string(),
       imagem_id: Yup.number(),
