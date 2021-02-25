@@ -84,7 +84,26 @@ class SessaoController {
       const decoced = await promisify(jwt.verify)(token, authConfig.secret)
       const { option } = decoced
       const { id } = decoced
-      return res.json({ option, id })
+      switch (option) {
+        case 'administrador':
+          try {
+            const admin = await Administrador.findByPk(id)
+            const { nome, email } = admin
+            return res.json({ id, nome, email })
+          } catch (err) {
+            console.log(err)
+            return res.status(403).json({ error: 'Invalid Token' })
+          }
+        default:
+          try {
+            const cliente = await Cliente.findByPk(id)
+            const { nome, email } = cliente
+            return res.json({ id, nome, email })
+          } catch (err) {
+            console.log(err)
+            return res.status(403).json({ error: 'Invalid Token' })
+          }
+      }
     } catch (err) {
       return res.status(403).json({ error: 'Invalid Token' })
     }
