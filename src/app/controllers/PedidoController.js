@@ -4,6 +4,7 @@ import * as Yup from 'yup'
 import Pedido from '../models/Pedido'
 import OfertaPedido from '../models/OfertaPedido'
 import Oferta from '../models/Oferta'
+import ValidadeOferta from '../models/ValidadeOferta'
 
 const { Op } = require('sequelize')
 
@@ -406,28 +407,87 @@ class PedidoController {
   }
 
   async delete(req, res) {
-    // TODO: cliente cancelar
+    // TODO transaction
     const { option } = req
-    if (option !== 'administrador') {
-      return res.status(403).json({ error: 'Permissao negada' })
-    }
-    const { id } = req.params
-
     const { usuario_id } = req
-    try {
-      const pedido = await Pedido.findOne({ where: parseInt(id, 10) })
-      if (pedido.cliente_id !== usuario_id && option !== 'administrador') {
-        return res.status(403).json({ error: 'permissao negada' })
+    let pedidoId = req.params.id
+    pedidoId = parseInt(pedidoId, 10)
+
+    if (option === 'cliente') {
+      try {
+        const pedido = await Pedido.findOne({
+          where: { id: pedidoId },
+          include: [
+            {
+              model: Oferta,
+              as: 'ofertas',
+            },
+          ],
+        })
+        if (!pedido) {
+          return res.status(404).json({ error: 'pedido inexistente' })
+        }
+        if (usuario_id !== pedido.cliente_id) {
+          return res.status(403).json({ error: 'permissão negada' })
+        }
+        if (pedido.status === 'cancelado') {
+          return res.status(404).json({ error: 'pedido já cancelado' })
+        }
+
+        const validadeOfertaId = pedido.ofertas[0].validade_oferta_id
+        const off = await ValidadeOferta.findOne({
+          where: { id: validadeOfertaId },
+        })
+        if (off.status === 'ativa') {
+          pedido.status = 'cancelado'
+          await pedido.save()
+
+          //
+          const ofertas = await OfertaPedido.findAll({
+            where: { pedido_id: pedidoId },
+          })
+          for (const oferta of ofertas) {
+            const ofert = await Oferta.findOne({
+              where: { id: oferta.oferta_id },
+            })
+            ofert.quantidade += oferta.quantidade
+            ofert.save()
+          }
+
+          return res.json({ success: `pedido de id ${pedidoId} cancelado` })
+        }
+      } catch (err) {
+        return res.status(500).json({ error: 'error' })
       }
-      if (!pedido) {
-        return res.status(404).json({ error: 'pedido inexistente' })
-      }
-      pedido.status = 'cancelado'
-      await pedido.save()
-      return res.json({ ok: true })
-    } catch (err) {
-      return res.status(500).json({ error: 'error' })
     }
+
+    if (option === 'administrador') {
+      try {
+        const pedido = await Pedido.findOne({ where: { id: pedidoId } })
+        if (!pedido) {
+          return res.status(404).json({ error: 'pedido inexistente' })
+        }
+        if (pedido.status === 'cancelado') {
+          return res.status(404).json({ error: 'pedido já cancelado' })
+        }
+        pedido.status = 'cancelado'
+        await pedido.save()
+        const ofertas = await OfertaPedido.findAll({
+          where: { pedido_id: pedidoId },
+        })
+        for (const oferta of ofertas) {
+          const ofert = await Oferta.findOne({
+            where: { id: oferta.oferta_id },
+          })
+          ofert.quantidade += oferta.quantidade
+          ofert.save()
+        }
+        return res.json({ success: `pedido de id ${pedidoId} cancelado` })
+      } catch (err) {
+        return res.status(500).json({ error: 'error' })
+      }
+    }
+    return res.status(401).json({ error: 'invalid option' })
   }
 }
 
