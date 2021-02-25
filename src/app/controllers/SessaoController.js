@@ -89,7 +89,7 @@ class SessaoController {
           try {
             const admin = await Administrador.findByPk(id)
             const { nome, email } = admin
-            return res.json({ id, nome, email })
+            return res.json({ id, nome, email, option })
           } catch (err) {
             console.log(err)
             return res.status(403).json({ error: 'Invalid Token' })
@@ -98,7 +98,7 @@ class SessaoController {
           try {
             const cliente = await Cliente.findByPk(id)
             const { nome, email } = cliente
-            return res.json({ id, nome, email })
+            return res.json({ id, nome, email, option })
           } catch (err) {
             console.log(err)
             return res.status(403).json({ error: 'Invalid Token' })
