@@ -50,6 +50,7 @@ routes.post(
 )
 
 // !rotas com autenticação obrigatória //
+routes.post('/valida-token', SessaoController.validaToken)
 routes.use(authMiddleware)
 
 routes.get('/cliente', ClienteController.index) //! checked

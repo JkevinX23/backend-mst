@@ -1,5 +1,6 @@
 import * as Yup from 'yup'
 import jwt from 'jsonwebtoken'
+import { promisify } from 'util'
 
 import authConfig from '../../config/authConfig'
 import Administrador from '../models/Administrador'
@@ -74,6 +75,18 @@ class SessaoController {
         return ClienteLogin()
       default:
         return res.status(404).json({ error: 'Falha ao efetuar o login' })
+    }
+  }
+
+  async validaToken(req, res) {
+    const { token } = req.body
+    try {
+      const decoced = await promisify(jwt.verify)(token, authConfig.secret)
+      const { option } = decoced
+      const { id } = decoced
+      return res.json({ option, id })
+    } catch (err) {
+      return res.status(403).json({ error: 'Invalid Token' })
     }
   }
 }
