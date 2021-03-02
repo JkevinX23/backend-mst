@@ -1,11 +1,15 @@
 import * as Yup from 'yup'
 
 import StatusLoja from '../models/StatusLoja'
+import ValidadeOferta from '../models/ValidadeOferta'
 
 class StatusLojaController {
   async index(req, res) {
     const status = await StatusLoja.findOne()
-    if (status.is_open) {
+    if (
+      status.is_open &&
+      (await ValidadeOferta.findOne({ where: { status: 'ativa' } }))
+    ) {
       return res.json({ success: 'aberta' })
     }
     return res.json({ success: 'fechada' })
