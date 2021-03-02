@@ -93,9 +93,12 @@ routes.delete('/oferta/:id', OfertaController.delete) //! checked
 routes.delete('/pedido/:id', PedidoController.delete) // TODO //! checked
 routes.delete('/administrador/:id', AdministradorController.delete) //! checked
 
-routes.get('/relatorio', RelatorioPedidoGeralController.gerar) //! checked
 routes.get(
-  '/relatorio-semanal-produtos',
+  '/relatorio/:validade_oferta_id',
+  RelatorioPedidoGeralController.gerar,
+) //! checked
+routes.get(
+  '/relatorio-semanal-produtos/:validade_oferta_id',
   RelatorioProdutosSemanaisController.gerar,
 ) //! checked
 

@@ -1,8 +1,12 @@
 import Pedido from '../models/Pedido'
+import ValidadeOferta from '../models/ValidadeOferta'
 
 class RelatorioPedidoGeralController {
+  // query param para nao invalidar off dps
   async gerar(req, res) {
     const { option } = req
+    const { validade_oferta_id } = req.params
+
     if (option !== 'administrador') {
       return res.status(403).json({ error: 'Permissao negada' })
     }
@@ -18,6 +22,11 @@ class RelatorioPedidoGeralController {
             {
               association: 'produtos',
               required: true,
+            },
+            {
+              association: 'validade',
+              required: true,
+              where: { id: validade_oferta_id },
             },
           ],
         },
@@ -61,6 +70,12 @@ class RelatorioPedidoGeralController {
         },
       }
     })
+
+    const validade = await ValidadeOferta.findOne({
+      where: { id: validade_oferta_id },
+    })
+    validade.status = 'inativa'
+    await validade.save()
 
     return res.json(response)
   }
