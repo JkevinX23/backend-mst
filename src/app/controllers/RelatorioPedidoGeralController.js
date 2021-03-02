@@ -39,7 +39,7 @@ class RelatorioPedidoGeralController {
       })
       let totalProdutos = 0
       prod.forEach(p => {
-        totalProdutos += p.preco * 2
+        totalProdutos += p.preco * p.quantidade
       })
 
       const totalPedido = totalProdutos + elem.frete.valor_frete
