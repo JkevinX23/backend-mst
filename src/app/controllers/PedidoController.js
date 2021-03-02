@@ -4,7 +4,6 @@ import * as Yup from 'yup'
 import Pedido from '../models/Pedido'
 import OfertaPedido from '../models/OfertaPedido'
 import Oferta from '../models/Oferta'
-import ValidadeOferta from '../models/ValidadeOferta'
 
 const { Op } = require('sequelize')
 
@@ -61,22 +60,10 @@ class PedidoController {
         )
       }
 
-      // const arrayOfertas = ofertas.map(async elem => {
-      //   return Oferta.findByPk(elem.id,{
-      //     plain: true,
-      //     raw: true,
-      //     transaction,
-      //   })
-      // })
-
-      // await Promise.all(arrayOfertas)
-      console.log(arrayOfertas)
-
       const itensEsgotados = arrayOfertas.filter(
         (off, index) => off.quantidade < ofertas[index].quantidade,
       )
       if (itensEsgotados.length > 0) {
-        // throw new Error();
         await transaction.rollback()
         return res.json({ itensEsgotados })
       }
@@ -84,7 +71,6 @@ class PedidoController {
       arrayOfertas.forEach((element, index) => {
         element.quantidade -= ofertas[index].quantidade
       })
-      console.log(arrayOfertas)
 
       for (const off of arrayOfertas) {
         await Oferta.update(off, { where: { id: off.id }, transaction })
@@ -321,22 +307,22 @@ class PedidoController {
   async update(req, res) {
     const { option, usuario_id } = req
 
-    /*
-            @To Do
+    const schema = Yup.object().shape({
+      id: Yup.number().integer().positive().required(),
+    })
+    if (!(await schema.isValid(req.params))) {
+      return res.status(400).json({ error: 'Validation fails' })
+    }
+    const pedidoId = parseInt(req.params.id, 10)
 
-    Para option igual a 'Cliente', Faltam validações
-
-    */
     if (option === 'administrador') {
-      const schema = Yup.object().shape({
-        pedido_id: Yup.number().integer().positive().required(),
+      const schemaOff = Yup.object().shape({
         ofertas: Yup.array().of(
           Yup.object().shape({
             oferta_id: Yup.number(),
             quantidade: Yup.number().positive().integer(),
           }),
         ),
-        cliente_id: Yup.number().integer().positive(),
         tipo_pagamento_id: Yup.number().integer().positive(),
         status: Yup.string().test(
           'Teste-Status',
@@ -350,28 +336,126 @@ class PedidoController {
         tipo_frete_id: Yup.number().integer().positive(),
       })
 
-      if (!(await schema.isValid(req.body))) {
+      if (!(await schemaOff.isValid(req.body))) {
         return res.status(400).json({ error: 'Validation fails' })
       }
 
-      const { pedido_id } = req.body
-      const pedido = await Pedido.findByPk(pedido_id)
       let transaction
       try {
-        transaction = await Pedido.sequelize.transaction()
-        const response = await pedido.update(req.body, { transaction })
+        transaction = await Oferta.sequelize.transaction()
+
+        const pedido = await Pedido.findOne(
+          { where: { id: pedidoId } },
+          { transaction },
+        )
+        const ofertaPedido = await OfertaPedido.findAll(
+          {
+            where: { pedido_id: pedidoId },
+          },
+          { transaction },
+        )
+
+        const ofertas = req.body.ofertas.map(off => ({
+          id: off.oferta_id,
+          quantidade: off.quantidade,
+        }))
+
+        const arrayOfertasFromDb = []
+
+        for (const oferta of ofertas) {
+          arrayOfertasFromDb.push(
+            await Oferta.findByPk(oferta.id, {
+              plain: true,
+              raw: true,
+              transaction,
+            }),
+          )
+        }
+
+        for (const off of ofertaPedido) {
+          const ofer = await Oferta.findOne(
+            { where: { id: off.oferta_id } },
+            transaction,
+          )
+          await ofer.increment('quantidade', {
+            by: off.quantidade,
+            transaction,
+          })
+          arrayOfertasFromDb.forEach(elem => {
+            if (elem.id === off.oferta_id) {
+              elem.quantidade += off.quantidade
+            }
+          })
+          await off.destroy({ transaction })
+        }
+
+        const itensEsgotados = arrayOfertasFromDb.filter(
+          (off, index) => off.quantidade < ofertas[index].quantidade,
+        )
+        if (itensEsgotados.length > 0) {
+          await transaction.rollback()
+          return res.json({ itensEsgotados })
+        }
+
+        arrayOfertasFromDb.forEach((element, index) => {
+          element.quantidade -= ofertas[index].quantidade
+        })
+
+        for (const off of arrayOfertasFromDb) {
+          await Oferta.update(off, { where: { id: off.id }, transaction })
+        }
+
+        for (const ofertaP of ofertaPedido) {
+          await ofertaP.destroy({ transaction })
+        }
+
+        const ofertaPedidos = ofertas.map(off => ({
+          quantidade: off.quantidade,
+          oferta_id: off.id,
+          pedido_id: pedido.id,
+        }))
+
+        await OfertaPedido.bulkCreate(ofertaPedidos, {
+          transaction,
+        })
         await transaction.commit()
-        return res.json(response)
-      } catch (err) {
+
+        return res.json(pedido)
+      } catch (error) {
+        console.log(error)
         if (transaction) await transaction.rollback()
-        console.log(err)
-        return res.status(409).json('Transaction Failed')
+        return res.status(409).json({ error: 'Transaction failed' })
       }
     }
 
     if (option === 'cliente') {
-      const schema = Yup.object().shape({
-        pedido_id: Yup.number().integer().positive().required(),
+      const pedidos = await Pedido.findOne({
+        include: [
+          {
+            association: 'ofertas',
+            required: true,
+            include: [
+              {
+                association: 'validade',
+                required: true,
+              },
+            ],
+          },
+        ],
+        required: true,
+        where: { id: pedidoId },
+      })
+      if (parseInt(usuario_id, 10) !== pedidos.cliente_id) {
+        return res.status(403).json({ error: 'permissao negada' })
+      }
+      if (pedidos.ofertas[0].validade.status !== 'ativa') {
+        return res.status(403).json({
+          error:
+            'Não é possivel editar um pedido em que as ofertas já foram expiradas',
+        })
+      }
+
+      const schemaOff = Yup.object().shape({
         ofertas: Yup.array().of(
           Yup.object().shape({
             oferta_id: Yup.number(),
@@ -382,112 +466,123 @@ class PedidoController {
         tipo_frete_id: Yup.number().integer().positive(),
       })
 
-      if (!(await schema.isValid(req.body))) {
+      if (!(await schemaOff.isValid(req.body))) {
         return res.status(400).json({ error: 'Validation fails' })
       }
 
-      const { pedido_id } = req.body
-      const pedido = await Pedido.findByPk(pedido_id)
-      if (pedido.cliente_id !== usuario_id) {
-        return res.status(402).json({ error: 'Permissão negada' })
-      }
       let transaction
       try {
-        transaction = await Pedido.sequelize.transaction()
-        const response = await pedido.update(req.body, { transaction })
+        transaction = await Oferta.sequelize.transaction()
+
+        const pedido = await Pedido.findOne(
+          { where: { id: pedidoId } },
+          { transaction },
+        )
+        const ofertaPedido = await OfertaPedido.findAll(
+          {
+            where: { pedido_id: pedidoId },
+          },
+          { transaction },
+        )
+
+        const ofertas = req.body.ofertas.map(off => ({
+          id: off.oferta_id,
+          quantidade: off.quantidade,
+        }))
+
+        const arrayOfertasFromDb = []
+
+        for (const oferta of ofertas) {
+          arrayOfertasFromDb.push(
+            await Oferta.findByPk(oferta.id, {
+              plain: true,
+              raw: true,
+              transaction,
+            }),
+          )
+        }
+
+        for (const off of ofertaPedido) {
+          const ofer = await Oferta.findOne(
+            { where: { id: off.oferta_id } },
+            transaction,
+          )
+          await ofer.increment('quantidade', {
+            by: off.quantidade,
+            transaction,
+          })
+          arrayOfertasFromDb.forEach(elem => {
+            if (elem.id === off.oferta_id) {
+              elem.quantidade += off.quantidade
+            }
+          })
+          await off.destroy({ transaction })
+        }
+
+        const itensEsgotados = arrayOfertasFromDb.filter(
+          (off, index) => off.quantidade < ofertas[index].quantidade,
+        )
+        if (itensEsgotados.length > 0) {
+          await transaction.rollback()
+          return res.json({ itensEsgotados })
+        }
+
+        arrayOfertasFromDb.forEach((element, index) => {
+          element.quantidade -= ofertas[index].quantidade
+        })
+
+        for (const off of arrayOfertasFromDb) {
+          await Oferta.update(off, { where: { id: off.id }, transaction })
+        }
+
+        for (const ofertaP of ofertaPedido) {
+          await ofertaP.destroy({ transaction })
+        }
+
+        const ofertaPedidos = ofertas.map(off => ({
+          quantidade: off.quantidade,
+          oferta_id: off.id,
+          pedido_id: pedido.id,
+        }))
+
+        await OfertaPedido.bulkCreate(ofertaPedidos, {
+          transaction,
+        })
         await transaction.commit()
-        return res.json(response)
-      } catch (err) {
+
+        return res.json(pedido)
+      } catch (error) {
+        console.log(error)
         if (transaction) await transaction.rollback()
-        console.log(err)
-        return res.status(409).json('Transaction Failed')
+        return res.status(409).json({ error: 'Transaction failed' })
       }
     }
     return res.status(401).json({ error: 'Invalid option' })
   }
 
   async delete(req, res) {
-    // TODO transaction
+    // TODO: cliente cancelar
     const { option } = req
+    if (option !== 'administrador') {
+      return res.status(403).json({ error: 'Permissao negada' })
+    }
+    const { id } = req.params
+
     const { usuario_id } = req
-    let pedidoId = req.params.id
-    pedidoId = parseInt(pedidoId, 10)
-
-    if (option === 'cliente') {
-      try {
-        const pedido = await Pedido.findOne({
-          where: { id: pedidoId },
-          include: [
-            {
-              model: Oferta,
-              as: 'ofertas',
-            },
-          ],
-        })
-        if (!pedido) {
-          return res.status(404).json({ error: 'pedido inexistente' })
-        }
-        if (usuario_id !== pedido.cliente_id) {
-          return res.status(403).json({ error: 'permissão negada' })
-        }
-        if (pedido.status === 'cancelado') {
-          return res.status(404).json({ error: 'pedido já cancelado' })
-        }
-
-        const validadeOfertaId = pedido.ofertas[0].validade_oferta_id
-        const off = await ValidadeOferta.findOne({
-          where: { id: validadeOfertaId },
-        })
-        if (off.status === 'ativa') {
-          pedido.status = 'cancelado'
-          await pedido.save()
-
-          //
-          const ofertas = await OfertaPedido.findAll({
-            where: { pedido_id: pedidoId },
-          })
-          for (const oferta of ofertas) {
-            const ofert = await Oferta.findOne({
-              where: { id: oferta.oferta_id },
-            })
-            ofert.quantidade += oferta.quantidade
-            ofert.save()
-          }
-
-          return res.json({ success: `pedido de id ${pedidoId} cancelado` })
-        }
-      } catch (err) {
-        return res.status(500).json({ error: 'error' })
+    try {
+      const pedido = await Pedido.findOne({ where: parseInt(id, 10) })
+      if (pedido.cliente_id !== usuario_id && option !== 'administrador') {
+        return res.status(403).json({ error: 'permissao negada' })
       }
-    }
-
-    if (option === 'administrador') {
-      try {
-        const pedido = await Pedido.findOne({ where: { id: pedidoId } })
-        if (!pedido) {
-          return res.status(404).json({ error: 'pedido inexistente' })
-        }
-        if (pedido.status === 'cancelado') {
-          return res.status(404).json({ error: 'pedido já cancelado' })
-        }
-        pedido.status = 'cancelado'
-        await pedido.save()
-        const ofertas = await OfertaPedido.findAll({
-          where: { pedido_id: pedidoId },
-        })
-        for (const oferta of ofertas) {
-          const ofert = await Oferta.findOne({
-            where: { id: oferta.oferta_id },
-          })
-          ofert.quantidade += oferta.quantidade
-          ofert.save()
-        }
-        return res.json({ success: `pedido de id ${pedidoId} cancelado` })
-      } catch (err) {
-        return res.status(500).json({ error: 'error' })
+      if (!pedido) {
+        return res.status(404).json({ error: 'pedido inexistente' })
       }
+      pedido.status = 'cancelado'
+      await pedido.save()
+      return res.json({ ok: true })
+    } catch (err) {
+      return res.status(500).json({ error: 'error' })
     }
-    return res.status(401).json({ error: 'invalid option' })
   }
 }
 
