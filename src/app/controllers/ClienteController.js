@@ -127,7 +127,6 @@ class ClienteController {
     const schema = Yup.object().shape({
       id: Yup.number(),
       nome: Yup.string(),
-      email: Yup.string().email(),
       cpf: Yup.string(),
       telefone: Yup.string(),
       oldPassword: Yup.string().min(6),
@@ -153,84 +152,179 @@ class ClienteController {
     const { option, usuario_id } = req
     const { email, oldPassword, id } = req.body
 
-    if (id !== usuario_id && option !== 'administrador') {
-      return res.status(403).json({ error: 'Permissao negada' })
-    }
-
-    const cliente = await Cliente.findByPk(id, {
-      // include: { model: Enderecos, as: 'enderecos' },
-    })
-
-    const { endereco_id } = cliente
-    const endereco = await Enderecos.findByPk(endereco_id)
-
     let alterEmail = false
 
-    if (email && email !== cliente.email) {
-      const exists = await Autorizacao.findOne({
-        where: { email },
-      })
-      if (exists) {
-        return res
-          .status(402)
-          .json({ error: 'Email já cadastrado na base de dados' })
+    async function updateProfile() {
+      const user = await Cliente.findByPk(usuario_id)
+      if (!user)
+        return res.status(404).json({ error: 'Cliente não encontrado' })
+      const endereco = await Enderecos.findByPk(user.endereco_id)
+
+      if (oldPassword && !(await user.checkPassword(oldPassword))) {
+        return res.status(401).json({ error: 'Password does not match' })
       }
-      alterEmail = true
-    }
 
-    if (oldPassword && !(await cliente.checkPassword(oldPassword))) {
-      return res.status(401).json({ error: 'Password does not match' })
-    }
-    let transaction
-    try {
-      transaction = await Cliente.sequelize.transaction()
-
-      const clientResponse = await cliente
-        .update(req.body, { transaction })
-        .then(function (tagData) {
-          return tagData.toJSON()
+      if (email && email !== user.email) {
+        const exists = await Autorizacao.findOne({
+          where: { email },
         })
-
-      const addressResponse = await endereco
-        .update(req.body, { where: { id: endereco_id } }, { transaction })
-        .then(function (tagData) {
-          return tagData.toJSON()
-        })
-
-      if (alterEmail) {
-        const { id: cli_id } = await TipoUsuarios.findOne({
-          where: { tipo: 'cliente' },
-        })
-        const clienteObj = await Autorizacao.findOne({
-          where: { tipo_id: cli_id, usuario_id: id },
-        })
-        await clienteObj.update({ email }, { transaction })
+        if (exists) {
+          return res
+            .status(402)
+            .json({ error: 'Email já cadastrado na base de dados' })
+        }
+        alterEmail = true
       }
-      cliente.enderecos = addressResponse
-      await transaction.commit()
+      let transaction
 
-      const resposta = clientResponse
-      resposta.enderecos = addressResponse
-      delete resposta.password_hash
-      delete resposta.password
-      return res.json({ cliente: resposta })
-    } catch (error) {
-      console.log(error)
-      if (transaction) await transaction.rollback()
-      return res.status(409).json({ error: 'Transaction failed' })
+      try {
+        transaction = await Cliente.sequelize.transaction()
+        if (alterEmail) {
+          const oldEmail = user.email
+          const auth = await Autorizacao.findOne({ where: { email: oldEmail } })
+          await auth.update({ email }, { transaction })
+        }
+        await user.update(req.body, { transaction })
+        await endereco.update(req.body, { transaction })
+        await transaction.commit()
+        return res.json({ ok: true })
+      } catch (error) {
+        console.log(error)
+        if (transaction) await transaction.rollback()
+        return res.status(409).json({ error: 'Transaction failed' })
+      }
     }
+
+    async function adminUpdate() {
+      const user = await Cliente.findByPk(id)
+      if (!user)
+        return res.status(404).json({ error: 'Cliente não encontrado' })
+      const endereco = await Enderecos.findByPk(user.endereco_id)
+
+      if (oldPassword && !(await user.checkPassword(oldPassword))) {
+        return res.status(401).json({ error: 'Password does not match' })
+      }
+
+      if (email && email !== user.email) {
+        const exists = await Autorizacao.findOne({
+          where: { email },
+        })
+        if (exists) {
+          return res
+            .status(402)
+            .json({ error: 'Email já cadastrado na base de dados' })
+        }
+        alterEmail = true
+      }
+
+      let transaction
+
+      try {
+        transaction = await Cliente.sequelize.transaction()
+        if (alterEmail) {
+          const oldEmail = user.email
+          const auth = await Autorizacao.findOne({ where: { email: oldEmail } })
+          await auth.update({ email }, { transaction })
+        }
+        await user.update(req.body, { transaction })
+        await endereco.update(req.body, { transaction })
+        await transaction.commit()
+        return res.json({ ok: true })
+      } catch (error) {
+        console.log(error)
+        if (transaction) await transaction.rollback()
+        return res.status(409).json({ error: 'Transaction failed' })
+      }
+    }
+
+    switch (option) {
+      case 'administrador':
+        return adminUpdate()
+      case 'cliente':
+        return updateProfile()
+      default:
+        return res.status(403).json({ error: 'Permissao negada' })
+    }
+
+    // if (id !== usuario_id && option !== 'administrador') {
+    //   return res.status(403).json({ error: 'Permissao negada' })
+    // }
+
+    // const cliente = await Cliente.findByPk(id, {
+    //   // include: { model: Enderecos, as: 'enderecos' },
+    // })
+
+    // const { endereco_id } = cliente
+    // const endereco = await Enderecos.findByPk(endereco_id)
+
+    // let alterEmail = false
+
+    // if (email && email !== cliente.email) {
+    //   const exists = await Autorizacao.findOne({
+    //     where: { email },
+    //   })
+    //   if (exists) {
+    //     return res
+    //       .status(402)
+    //       .json({ error: 'Email já cadastrado na base de dados' })
+    //   }
+    //   alterEmail = true
+    // }
+
+    // if (oldPassword && !(await cliente.checkPassword(oldPassword))) {
+    //   return res.status(401).json({ error: 'Password does not match' })
+    // }
+    // let transaction
+    // try {
+    //   transaction = await Cliente.sequelize.transaction()
+
+    //   const clientResponse = await cliente
+    //     .update(req.body, { transaction })
+    //     .then(function (tagData) {
+    //       return tagData.toJSON()
+    //     })
+
+    //   const addressResponse = await endereco
+    //     .update(req.body, { where: { id: endereco_id } }, { transaction })
+    //     .then(function (tagData) {
+    //       return tagData.toJSON()
+    //     })
+
+    //   if (alterEmail) {
+    //     const { id: cli_id } = await TipoUsuarios.findOne({
+    //       where: { tipo: 'cliente' },
+    //     })
+    //     const clienteObj = await Autorizacao.findOne({
+    //       where: { tipo_id: cli_id, usuario_id: id },
+    //     })
+    //     await clienteObj.update({ email }, { transaction })
+    //   }
+    //   cliente.enderecos = addressResponse
+    //   await transaction.commit()
+
+    //   const resposta = clientResponse
+    //   resposta.enderecos = addressResponse
+    //   delete resposta.password_hash
+    //   delete resposta.password
+    //   return res.json({ cliente: resposta })
+    // } catch (error) {
+    //   console.log(error)
+    //   if (transaction) await transaction.rollback()
+    //   return res.status(409).json({ error: 'Transaction failed' })
+    // }
   }
 
   async show(req, res) {
     const { option, usuario_id } = req
     const { id } = req.params
-    if (option !== 'administrador' && parseInt(id, 10) !== usuario_id) {
-      return res.status(403).json({ error: 'Permissao negada' })
+    let findId = id
+    if (option !== 'administrador') {
+      findId = usuario_id
     }
 
     const cliente = await Cliente.findOne({
       where: {
-        id,
+        findId,
       },
       include: {
         association: 'enderecos',
