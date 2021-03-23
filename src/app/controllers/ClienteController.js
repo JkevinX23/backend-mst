@@ -324,7 +324,7 @@ class ClienteController {
 
     const cliente = await Cliente.findOne({
       where: {
-        findId,
+        id: findId,
       },
       include: {
         association: 'enderecos',
