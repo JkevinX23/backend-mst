@@ -47,7 +47,7 @@ class RelatorioPedidoGeralController {
         return {
           id: off.produtos.id,
           nome: off.produtos.nome,
-          preco: off.valor_unitario,
+          preco: parseFloat(off.valor_unitario, 10),
           quantidade: off.oferta_pedidos.dataValues.quantidade,
         }
       })
@@ -73,7 +73,7 @@ class RelatorioPedidoGeralController {
           valor_frete: elem.frete.valor_frete,
           data_pedido: elem.created_at,
           totalPedido,
-          produtos: { ...prod },
+          produtos: [...prod],
         },
       }
     })
