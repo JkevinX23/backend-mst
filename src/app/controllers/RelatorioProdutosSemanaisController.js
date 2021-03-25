@@ -66,7 +66,7 @@ class RelatorioProdutosSemanaisController {
     validade.status = 'inativa'
     await validade.save()
 
-    return res.json(pedidos)
+    return res.json(response)
   }
 }
 
