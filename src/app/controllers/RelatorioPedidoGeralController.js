@@ -30,7 +30,12 @@ class RelatorioPedidoGeralController {
             },
           ],
         },
-        { association: 'clientes' },
+        {
+          association: 'clientes',
+          include: {
+            association: 'enderecos',
+          },
+        },
         { association: 'pagamento' },
         { association: 'frete' },
       ],
@@ -55,9 +60,11 @@ class RelatorioPedidoGeralController {
 
       return {
         cliente: {
+          id: elem.clientes.id,
           nome: elem.clientes.nome,
           cpf: elem.clientes.cpf,
           telefone: elem.clientes.telefone,
+          endereco: elem.clientes.enderecos,
         },
         pedido: {
           id: elem.id,
