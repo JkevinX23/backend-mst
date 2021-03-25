@@ -4,8 +4,14 @@ class CategoriaProduto extends Model {
   static init(sequelize) {
     super.init(
       {
-        produto_id: Sequelize.INTEGER,
-        categoria_id: Sequelize.INTEGER,
+        produto_id: {
+          type: Sequelize.INTEGER,
+          primaryKey: true,
+        },
+        categoria_id: {
+          type: Sequelize.INTEGER,
+          primaryKey: true,
+        },
       },
       {
         sequelize,

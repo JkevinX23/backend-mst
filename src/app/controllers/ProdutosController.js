@@ -158,15 +158,19 @@ class ProdutosController {
         return Produtos.findByPk(id, { transaction })
       })
       if (categorias) {
-        await CategoriaProduto.destroy(
-          {
-            where: {
-              produto_id: id,
-            },
+        await CategoriaProduto.destroy({
+          where: {
+            produto_id: id,
           },
-          { transaction },
-        )
-        await resultado.setCategorias(categorias, { transaction })
+          transaction,
+        })
+        const categoriasObj = categorias.map(elem => ({
+          produto_id: req.body.id,
+          categoria_id: elem,
+        }))
+        for (const cat of categoriasObj) {
+          await CategoriaProduto.create(cat, { transaction })
+        }
       }
 
       await transaction.commit()
