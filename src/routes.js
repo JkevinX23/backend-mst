@@ -23,6 +23,7 @@ import ContadorEstatisticaController from './app/controllers/ContadorEstatistica
 import RelatorioPedidoGeralController from './app/controllers/RelatorioPedidoGeralController'
 import RelatorioProdutosSemanaisController from './app/controllers/RelatorioProdutosSemanaisController'
 import StatusLojaController from './app/controllers/StatusLojaController'
+import DebugController from './app/controllers/DebugController'
 
 const routes = new Router()
 const upload = multer(multerConfig)
@@ -102,4 +103,7 @@ routes.get(
   RelatorioProdutosSemanaisController.gerar,
 ) //! checked
 
+routes.put('/debug', DebugController.update)
+routes.get('/debug', DebugController.index)
+routes.post('/debug', DebugController.store)
 export default routes
