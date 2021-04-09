@@ -2,6 +2,7 @@ import * as Yup from 'yup'
 import jwt from 'jsonwebtoken'
 import { promisify } from 'util'
 
+import enderecos from '../models/Enderecos'
 import authConfig from '../../config/authConfig'
 import Administrador from '../models/Administrador'
 import Autorizacao from '../models/Autorizacao'
@@ -50,7 +51,9 @@ class SessaoController {
     }
 
     async function ClienteLogin() {
-      const cliente = await Cliente.findByPk(usuario_id)
+      const cliente = await Cliente.findByPk(usuario_id, {
+        include: { model: enderecos, as: 'enderecos' },
+      })
       if (!cliente) return res.status(401).json({ error: 'User not found ' })
       if (!(await cliente.checkPassword(password)))
         return res.status(401).json({ error: 'Password does not match ' })
@@ -61,6 +64,15 @@ class SessaoController {
           id,
           nome,
           email,
+        },
+        endereco: {
+          cep: cliente.enderecos.cep,
+          rua: cliente.enderecos.logradouro,
+          cidade: cliente.enderecos.cidade,
+          estado: cliente.enderecos.estado,
+          numero: cliente.enderecos.numero,
+          complemento: cliente.enderecos.complemento,
+          referencia: cliente.enderecos.referencia,
         },
         token: jwt.sign({ id, option: Tipo.tipo }, authConfig.secret, {
           expiresIn: authConfig.expiresIn,
