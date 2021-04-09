@@ -67,11 +67,11 @@ class SessaoController {
         },
         endereco: {
           cep: cliente.enderecos.cep,
-          rua: cliente.enderecos.logradouro,
-          cidade: cliente.enderecos.cidade,
-          estado: cliente.enderecos.estado,
-          numero: cliente.enderecos.numero,
-          complemento: cliente.enderecos.complemento,
+          neighborhood: cliente.enderecos.bairro,
+          street: cliente.enderecos.logradouro,
+          city: cliente.enderecos.cidade,
+          number: cliente.enderecos.numero,
+          complement: cliente.enderecos.complemento,
           referencia: cliente.enderecos.referencia,
         },
         token: jwt.sign({ id, option: Tipo.tipo }, authConfig.secret, {
