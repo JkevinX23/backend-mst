@@ -59,8 +59,21 @@ class OfertaController {
         [Op.not]: null,
       },
     }
+
+    const whereQuantidade = {
+      quantidade: {
+        [Op.not]: null,
+      },
+    }
+
     if (option !== 'administrador' || disponibilidade === 'ativa') {
       where.status = 'ativa'
+    }
+
+    if (option !== 'administrador') {
+      whereQuantidade.quantidade = {
+        [Op.gt]: 0,
+      }
     }
 
     const ofertas = await Oferta.findAll({
@@ -98,6 +111,7 @@ class OfertaController {
           required: true,
         },
       ],
+      where: whereQuantidade,
       attributes: {
         exclude: ['createdAt', 'updatedAt', 'validade_oferta_id', 'produto_id'],
       },

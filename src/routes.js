@@ -77,6 +77,7 @@ routes.put('/cliente', ClienteController.update) //! checked but need tests
 routes.put('/validade-oferta', ValidadeOfertaController.update) //! checked
 routes.put('/produto', ProdutosController.update) //! checked
 routes.put('/oferta', OfertaController.update) //! checked
+routes.put('/pedido/:id', PedidoController.update) //! new
 
 routes.get('/estatisticas', ContadorEstatisticaController.show) //! checked
 routes.get('/cliente/id/:id', ClienteController.show) //! checked
