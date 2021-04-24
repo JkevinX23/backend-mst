@@ -562,10 +562,11 @@ class PedidoController {
 
   async delete(req, res) {
     // TODO: cliente cancelar
+    // Todo: verificações
     const { option } = req
-    if (option !== 'administrador') {
-      return res.status(403).json({ error: 'Permissao negada' })
-    }
+    // if (option !== 'administrador') {
+    //   return res.status(403).json({ error: 'Permissao negada' })
+    // }
     const { id } = req.params
 
     const { usuario_id } = req
