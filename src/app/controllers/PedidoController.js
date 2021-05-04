@@ -4,6 +4,8 @@ import * as Yup from 'yup'
 import Pedido from '../models/Pedido'
 import OfertaPedido from '../models/OfertaPedido'
 import Oferta from '../models/Oferta'
+import ValidadeOferta from '../models/ValidadeOferta'
+import StatusLoja from '../models/StatusLoja'
 
 const { Op } = require('sequelize')
 
@@ -454,6 +456,13 @@ class PedidoController {
             'Não é possivel editar um pedido em que as ofertas já foram expiradas',
         })
       }
+      const statusLoja = await StatusLoja.findOne()
+      if (!statusLoja.is_open) {
+        return res.status(403).json({
+          error:
+            'não é posssivel cancelar um pedido quando a loja está fechada',
+        })
+      }
 
       const schemaOff = Yup.object().shape({
         ofertas: Yup.array().of(
@@ -561,22 +570,29 @@ class PedidoController {
   }
 
   async delete(req, res) {
-    // TODO: cliente cancelar
-    // Todo: verificações
     const { option } = req
-    // if (option !== 'administrador') {
-    //   return res.status(403).json({ error: 'Permissao negada' })
-    // }
     const { id } = req.params
 
     const { usuario_id } = req
     try {
       const pedido = await Pedido.findOne({ where: parseInt(id, 10) })
+      if (!pedido) {
+        return res.status(404).json({ error: 'pedido inexistente' })
+      }
+      const statusLoja = await StatusLoja.findOne()
       if (pedido.cliente_id !== usuario_id && option !== 'administrador') {
         return res.status(403).json({ error: 'permissao negada' })
       }
-      if (!pedido) {
-        return res.status(404).json({ error: 'pedido inexistente' })
+      if (option !== 'administrador') {
+        const validadeOferta = await ValidadeOferta.findOne({
+          where: { id: pedido.validade_oferta_id },
+        })
+        if (validadeOferta.status !== 'ativa' || !statusLoja.is_open) {
+          return res.status(403).json({
+            error:
+              'não é posssivel cancelar um pedido em que a validade da oferta já foi expirada ou quando a loja está fechada',
+          })
+        }
       }
       pedido.status = 'cancelado'
       await pedido.save()
