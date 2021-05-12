@@ -32,6 +32,7 @@ class RelatorioProdutosSemanaisController {
         },
       ],
       required: true,
+      where: { status: 'aberto' },
     })
 
     const produtos = []

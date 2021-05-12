@@ -40,6 +40,7 @@ class RelatorioPedidoGeralController {
         { association: 'frete' },
       ],
       required: true,
+      where: { status: 'aberto' },
     })
 
     const response = pedidos.map(elem => {
