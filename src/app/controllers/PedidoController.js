@@ -191,7 +191,7 @@ class PedidoController {
           },
         },
       ],
-      order: [['updatedAt', 'DESC']],
+      order: [['createdAt', 'DESC']],
       attributes: {
         exclude: ['updatedAt', 'cliente_id', 'administrador_id'],
       },
