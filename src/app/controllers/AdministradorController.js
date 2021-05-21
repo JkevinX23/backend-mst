@@ -183,16 +183,15 @@ class AdminController {
     const transaction = await Administrador.sequelize.transaction()
 
     try {
-      const adm = await Administrador.findOne(
-        { id: parseInt(id, 10) },
-        { transaction },
+      const adm = await Administrador.findByPk(parseInt(id, 10),
+        { transaction }
       )
       if (!adm) {
         return res.json({ error: 'Administrator not found' })
       }
 
       const aut = await Autorizacao.findOne(
-        { email: adm.email },
+        { where: { email: adm.email  }},
         { transaction },
       )
 
