@@ -571,11 +571,10 @@ class PedidoController {
 
   async delete(req, res) {
     const { option } = req
-    const { id } = req.params
+    const { id } = parseInt(req.params.id, 10)
 
     const { usuario_id } = req
     try {
-      const id = parseInt(id, 10)
       const pedido = await Pedido.findOne({ where: id })
       if (!pedido) {
         return res.status(404).json({ error: 'pedido inexistente' })

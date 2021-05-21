@@ -141,12 +141,11 @@ class ProdutosController {
     }
     const { id, nome, descricao, imagem_id, categorias } = req.body
 
-    let resultado
     let transaction
 
     try {
       transaction = await Produtos.sequelize.transaction()
-      resultado = await Produtos.update(
+      await Produtos.update(
         {
           nome,
           descricao,

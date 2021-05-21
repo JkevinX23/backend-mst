@@ -7,12 +7,13 @@
     "start": "node build/server.js",
     "dev": "nodemon src/server.js",
     "dev:debug": "nodemon --inspect src/server.js",
-    "build": "sucrase ./src -d ./dist --transforms imports"
+    "build": "sucrase ./src -d ./dist --transforms imports && cpx './src/view/**/*' './dist/view' --clean"
   },
   "dependencies": {
     "@sentry/node": "^5.29.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
+    "cpx": "^1.5.0",
     "date-fns": "^2.16.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",

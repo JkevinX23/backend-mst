@@ -68,7 +68,8 @@ class SessaoController {
         return res.status(404).json({ error: 'Falha ao efetuar o login' })
     }
   }
-  async storeAdmin(req,res) {
+
+  async storeAdmin(req, res) {
     const schema = Yup.object().shape({
       email: Yup.string().email().required(),
       password: Yup.string().required(),
@@ -115,6 +116,7 @@ class SessaoController {
         return res.status(404).json({ error: 'Falha ao efetuar o login' })
     }
   }
+
   async validaToken(req, res) {
     const { token } = req.body
     try {
