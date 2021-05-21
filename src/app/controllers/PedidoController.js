@@ -575,7 +575,8 @@ class PedidoController {
 
     const { usuario_id } = req
     try {
-      const pedido = await Pedido.findOne({ where: parseInt(id, 10) })
+      const id = parseInt(id, 10)
+      const pedido = await Pedido.findOne({ where: id })
       if (!pedido) {
         return res.status(404).json({ error: 'pedido inexistente' })
       }
