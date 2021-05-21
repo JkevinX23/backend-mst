@@ -49,7 +49,7 @@ class ForgetPassword {
       },
     )
 
-    const link = process.env.EMAIL_SITE + token
+    const link = `https://veredasdaterra.com.br/token_recuperacao/${token}`
     const context = {
       name: usuarioDetalhes.nome,
       link,
