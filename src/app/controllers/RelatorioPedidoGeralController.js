@@ -3,6 +3,7 @@ import ValidadeOferta from '../models/ValidadeOferta'
 
 class RelatorioPedidoGeralController {
   // query param para nao invalidar off dps
+
   async gerar(req, res) {
     const { option } = req
     const { validade_oferta_id } = req.params
@@ -83,8 +84,31 @@ class RelatorioPedidoGeralController {
       where: { id: validade_oferta_id },
     })
     validade.status = 'inativa'
-    await validade.save()
 
+    const pedidosAFechar = await Pedido.findAll({
+      include: [
+        {
+          association: 'ofertas',
+          through: {
+            attributes: ['quantidade'],
+          },
+          include: [
+            {
+              association: 'validade',
+              required: true,
+              where: { id: validade_oferta_id },
+            },
+          ],
+        },
+      ],
+    })
+
+    pedidosAFechar.forEach(elem => {
+      if (elem.status !== 'cancelado') elem.status = 'fechado'
+      elem.save()
+    })
+
+    await validade.save()
     return res.json(response)
   }
 }

@@ -65,6 +65,30 @@ class RelatorioProdutosSemanaisController {
       where: { id: validade_oferta_id },
     })
     validade.status = 'inativa'
+
+    const pedidosAFechar = await Pedido.findAll({
+      include: [
+        {
+          association: 'ofertas',
+          through: {
+            attributes: ['quantidade'],
+          },
+          include: [
+            {
+              association: 'validade',
+              required: true,
+              where: { id: validade_oferta_id },
+            },
+          ],
+        },
+      ],
+    })
+
+    pedidosAFechar.forEach(elem => {
+      if (elem.status !== 'cancelado') elem.status = 'fechado'
+      elem.save()
+    })
+
     await validade.save()
 
     return res.json(response)
