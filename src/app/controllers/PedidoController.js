@@ -206,6 +206,10 @@ class PedidoController {
           parseInt(ele2.oferta_pedidos.quantidade, 10)
       })
       total += element.frete.valor_frete
+
+      if (element.status === 'cancelado') {
+        total = 0.0
+      }
       element.total = total
     })
 
@@ -301,6 +305,9 @@ class PedidoController {
         parseInt(element.oferta_pedidos.quantidade, 10)
     })
     total += pedido.frete.valor_frete
+    if (pedido.status === 'cancelado') {
+      total = 0.0
+    }
     pedido.total = total
 
     return res.json({ pedido })
@@ -571,22 +578,33 @@ class PedidoController {
 
   async delete(req, res) {
     const { option } = req
-    const { id } = parseInt(req.params.id, 10)
+    const id = parseInt(req.params.id, 10)
 
     const { usuario_id } = req
+
+    let transaction
     try {
-      const pedido = await Pedido.findOne({ where: id })
+      transaction = await Oferta.sequelize.transaction()
+      const pedido = await Pedido.findOne({ where: id }, { transaction })
       if (!pedido) {
         return res.status(404).json({ error: 'pedido inexistente' })
+      }
+      if (pedido.status !== 'aberto') {
+        return res.status(401).json({
+          error: 'não é possível cancelar um pedido já cancelado ou fechado',
+        })
       }
       const statusLoja = await StatusLoja.findOne()
       if (pedido.cliente_id !== usuario_id && option !== 'administrador') {
         return res.status(403).json({ error: 'permissao negada' })
       }
       if (option !== 'administrador') {
-        const validadeOferta = await ValidadeOferta.findOne({
-          where: { id: pedido.validade_oferta_id },
-        })
+        const validadeOferta = await ValidadeOferta.findOne(
+          {
+            where: { status: 'ativa' },
+          },
+          { transaction },
+        )
         if (validadeOferta.status !== 'ativa' || !statusLoja.is_open) {
           return res.status(403).json({
             error:
@@ -594,11 +612,33 @@ class PedidoController {
           })
         }
       }
+      const ofertaPedido = await OfertaPedido.findAll(
+        {
+          where: { pedido_id: id },
+        },
+        { transaction },
+      )
+
+      for (const off of ofertaPedido) {
+        const ofer = await Oferta.findOne(
+          { where: { id: off.oferta_id } },
+          transaction,
+        )
+        await ofer.increment('quantidade', {
+          by: off.quantidade,
+          transaction,
+        })
+        await off.destroy({ transaction })
+      }
+
       pedido.status = 'cancelado'
       await pedido.save()
+      await transaction.commit()
       return res.json({ ok: true })
-    } catch (err) {
-      return res.status(500).json({ error: 'error' })
+    } catch (error) {
+      console.log(error)
+      if (transaction) await transaction.rollback()
+      return res.status(409).json({ error: 'Transaction failed' })
     }
   }
 }
