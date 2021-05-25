@@ -11,6 +11,17 @@ class ValidadeOfertaController {
     if (option !== 'administrador') {
       return res.status(403).json({ error: 'Permissao negada' })
     }
+
+    const jaExiste = await ValidadeOferta.findOne({
+      where: { status: 'ativa' },
+    })
+    if (jaExiste) {
+      return res.status(403).json({
+        error:
+          "Só é possível ter uma validadeOferta com status 'ativa' por vez.",
+      })
+    }
+
     const schema = Yup.object().shape({
       validade: Yup.date().required(),
     })
