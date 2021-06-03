@@ -67,7 +67,7 @@ class PedidoController {
       )
       if (itensEsgotados.length > 0) {
         await transaction.rollback()
-        return res.json({ itensEsgotados })
+        return res.status(404).json({ itensEsgotados })
       }
 
       arrayOfertas.forEach((element, index) => {
@@ -297,7 +297,7 @@ class PedidoController {
       return JSON.parse(JSON.stringify(result))
     })
 
-    if (!pedido) return res.json({ error: 'Pedido não encontrado' })
+    if (!pedido) return res.status(404).json({ error: 'Pedido não encontrado' })
     let total = 0.0
     pedido.ofertas.forEach(element => {
       total +=
@@ -403,7 +403,7 @@ class PedidoController {
         )
         if (itensEsgotados.length > 0) {
           await transaction.rollback()
-          return res.json({ itensEsgotados })
+          return res.status(404).json({ itensEsgotados })
         }
 
         arrayOfertasFromDb.forEach((element, index) => {
@@ -540,7 +540,7 @@ class PedidoController {
         )
         if (itensEsgotados.length > 0) {
           await transaction.rollback()
-          return res.json({ itensEsgotados })
+          return res.status(404).json({ itensEsgotados })
         }
 
         arrayOfertasFromDb.forEach((element, index) => {
