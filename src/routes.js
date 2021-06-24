@@ -79,6 +79,7 @@ routes.put('/validade-oferta', ValidadeOfertaController.update) //! checked
 routes.put('/produto', ProdutosController.update) //! checked
 routes.put('/oferta', OfertaController.update) //! checked
 routes.put('/pedido/:id', PedidoController.update) //! new
+routes.put('/frete/:id', TipoFreteController.update)
 
 routes.get('/estatisticas', ContadorEstatisticaController.show) //! checked
 routes.get('/cliente/id/:id', ClienteController.show) //! checked
