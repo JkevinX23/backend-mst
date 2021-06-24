@@ -137,8 +137,6 @@ class ValidadeOfertaController {
           where: {
             id: validade_id,
           },
-        },
-        {
           transaction,
         },
       )

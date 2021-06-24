@@ -53,7 +53,6 @@ class OfertaController {
   async index(req, res) {
     const { option } = req
     const { disponibilidade } = req.query
-    const { pagina = 1, limite = 20 } = req.query
     const where = {
       status: {
         [Op.not]: null,
@@ -77,8 +76,6 @@ class OfertaController {
     }
 
     const ofertas = await Oferta.findAll({
-      limit: parseInt(limite, 10),
-      offset: (pagina - 1) * limite,
       include: [
         {
           association: 'produtos',
@@ -116,21 +113,6 @@ class OfertaController {
         exclude: ['createdAt', 'updatedAt', 'validade_oferta_id', 'produto_id'],
       },
     })
-    // debater depois // ("quantidade" de oferta é o restante atualmente)
-
-    // const response = await Promise.all(
-    //   ofertas.map(async oferta => {
-    //     const pedidos = await Pedido.findAll({
-    //       where: { id: oferta.id, status: ['aberto', 'entregue'] },
-    //     })
-    //     const off = oferta
-    //     const qtd_disponivel = oferta.quantidade - pedidos.length
-    //     return { off, qtd_disponivel }
-    //   }),
-    // )
-
-    //
-
     return res.json(ofertas)
   }
 
@@ -200,10 +182,8 @@ class OfertaController {
 
     const { id, quantidade, valor_unitario, validade_oferta_id } = req.body
 
-    let transaction
     let resultado
     try {
-      transaction = await Oferta.sequelize.transaction()
       resultado = await Oferta.update(
         {
           quantidade,
@@ -211,16 +191,10 @@ class OfertaController {
           validade_oferta_id,
         },
         { where: { id } },
-        { transaction },
-      ).then(async function f() {
-        const off = await Oferta.findByPk(id, { transaction })
-        return off
-      })
-      await transaction.commit()
+      )
       return res.json(resultado)
     } catch (err) {
       console.log(err)
-      if (transaction) await transaction.rollback()
       return res.status(409).json({ error: 'Transaction failed' })
     }
   }
