@@ -127,7 +127,7 @@ class PedidoController {
     if (option !== 'administrador') {
       where.cliente_id = usuario_id
     }
-    const { pagina = 1, limite = 20 } = req.query
+    const { pagina = 1, limite = 2147483645 } = req.query
 
     const pedidos = await Pedido.findAll({
       limit: parseInt(limite, 10),

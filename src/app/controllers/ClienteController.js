@@ -103,7 +103,7 @@ class ClienteController {
 
   async index(req, res) {
     const { option } = req
-    const { pagina = 1, limite = 20 } = req.query
+    const { pagina = 1, limite = 2147483645 } = req.query
     if (option !== 'administrador') {
       return res.status(403).json({ error: 'Permissao negada' })
     }

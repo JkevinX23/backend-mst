@@ -52,7 +52,7 @@ class ProdutosController {
       return res.status(403).json({ error: 'Permissao negada' })
     }
 
-    const { pagina = 1, limite = 20 } = req.query
+    const { pagina = 1, limite = 2147483645 } = req.query
 
     const produtos = await Produtos.findAll({
       limit: parseInt(limite, 10),

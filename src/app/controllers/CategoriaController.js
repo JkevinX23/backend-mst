@@ -38,7 +38,7 @@ class CategoriaController {
 
   async index(req, res) {
     const { option } = req
-    const { pagina = 1, limite = 20 } = req.query
+    const { pagina = 1, limite = 2147483645 } = req.query
     if (option !== 'administrador') {
       const categorias = await Categoria.findAll({
         limit: parseInt(limite, 10),

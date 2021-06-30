@@ -64,7 +64,7 @@ class ValidadeOfertaController {
       return res.status(403).json({ error: 'Permissao negada' })
     }
     const { status } = req.query
-    const { pagina = 1, limite = 20 } = req.query
+    const { pagina = 1, limite = 2147483645 } = req.query
 
     const where = {
       status: {
