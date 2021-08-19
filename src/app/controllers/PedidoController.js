@@ -628,7 +628,7 @@ class PedidoController {
           by: off.quantidade,
           transaction,
         })
-        await off.destroy({ transaction })
+        // await off.destroy({ transaction })
       }
 
       pedido.status = 'cancelado'
