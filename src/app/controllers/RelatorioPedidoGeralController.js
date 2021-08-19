@@ -1,6 +1,8 @@
 import Pedido from '../models/Pedido'
 import ValidadeOferta from '../models/ValidadeOferta'
 
+const { Op } = require('sequelize')
+
 class RelatorioPedidoGeralController {
   // query param para nao invalidar off dps
 
@@ -41,7 +43,7 @@ class RelatorioPedidoGeralController {
         { association: 'frete' },
       ],
       required: true,
-      where: { status: 'aberto' },
+      where: { [Op.not]: { status: 'cancelado' } },
     })
 
     const response = pedidos.map(elem => {

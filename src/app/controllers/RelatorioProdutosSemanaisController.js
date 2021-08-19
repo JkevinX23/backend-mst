@@ -1,6 +1,8 @@
 import Pedido from '../models/Pedido'
 import ValidadeOferta from '../models/ValidadeOferta'
 
+const { Op } = require('sequelize')
+
 class RelatorioProdutosSemanaisController {
   async gerar(req, res) {
     const { option } = req
@@ -32,7 +34,7 @@ class RelatorioProdutosSemanaisController {
         },
       ],
       required: true,
-      where: { status: 'aberto' },
+      where: { [Op.not]: { status: 'cancelado' } },
     })
 
     const produtos = []
