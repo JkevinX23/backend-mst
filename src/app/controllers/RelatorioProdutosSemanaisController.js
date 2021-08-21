@@ -59,7 +59,7 @@ class RelatorioProdutosSemanaisController {
         response.push(prod)
       }
       if (resp >= 0) {
-        produtos[resp].quantidade += prod.quantidade
+        response[resp].quantidade += prod.quantidade
       }
     })
 
